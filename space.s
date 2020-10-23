@@ -1,0 +1,355 @@
+    SECTION MyDemo,CODE_C
+
+; Codice di partenza
+
+; ====== BLOCCO DEL SISTEMA OPERATIVO E DEGLI INTERRUPT
+
+init:
+    ; Dobbiamo salvare la copperlist del sistema operativo, ma lo facciamo con una chiamata alla graphics.library
+    ; (questo non me lo ricordavo, probabilmente stava nel startup.s di Randy
+    ; Per aprire una library scrivo
+
+    move.l  4.w,a6              ; execbase, il puntatore alla open library è sempre all'indirizzo 4 in memoria
+                                ; non uso il # perché non voglio mettere 4 in a6, ma il contenuto dell'indirizzo 4.
+                                ; Omettendo il # leggo un valore dalla memoria.
+    clr.l   d0                  ; Clear d0, che è il version number
+
+    ; ora devo dirgli quale libreria aprire, metto il puntatore del nome ascii della libreria in un registro indirizzo
+    move.l  #gfxname,a1         ; Definito in fondo
+    jsr     -408(a6)            ; -408 è l'offset della funzione oldopenlibrary
+
+    ; Otteniamo il base pointer alla graphics.library in d0 e lo metto in un registro indirizzo ovviamente
+    move.l  d0,a1
+    move.l  38(a1),d4           ; Fetchiamo il current copper pointer e lo mettiamo in d4, all'uscita lo ripristineremo
+
+    ; Chiudiamo la libreria, con la funzione closelibrary() sempre partendo da execbase
+    jsr     -414(a6)
+
+;   Mi salvo il precedente valore di INTENAR in modo da poter tornare al sistema operativo quando esco
+;   E' quello read only http://amiga-dev.wikidot.com/hardware:intenar
+
+    move    $dff01c,d5
+
+; Salvo il valore di DMACON dal registro di lettura http://amiga-dev.wikidot.com/hardware:dmaconr
+    move.w  $dff002,d3
+
+; ===== FINE BLOCCO DEL SISTEMA OPERATIVO
+
+; ===== INIZIO CODICE 
+
+; E' meglio aspettare l'end of frame prima di smaneggiare con questi registri, in teoria dovrebbe sistemare lo sprite flickering
+; ma a me non funziona proprio
+    move.w  #$138,d0
+    jsr     WaitRaster
+    ;bsr.b   WaitRaster          ; Uso brs.b perché il codice è vicino, non è un long jump per cui non mi serve jsr
+                                 ; ATTENZIONE, non so perché ma con VASM non funziona, da errore, quindi rimetto jsr.
+
+    move.w  #$7fff,$dff09a           ; Disabilito tutti i bit in INTENA (interrupt enable)
+    move.w  #$7fff,$dff09c          ; (Buona pratica:) Disabilito tutti i bit in INTREQ
+    move.w  #$7fff,$dff09c          ; (Buona pratica:) Disabilito tutti i bit in INTREQ, faccio due volte per renderlo compatibile con A4000 che ha un bug
+
+; Per disabilitare tutti i DMA completamente, facciamo qualcosa di simile a quanto fatto qui sopra con gli interrupt
+
+    move.w  #$7fff,$dff096          ; Disabilito tutti i bit in DMACON
+
+; Abilito per lo meno il copper, bitplanes
+
+; DMACON dff096 DMA Control write (clear or set) http://amiga-dev.wikidot.com/hardware:dmaconr
+;    move.w  #$87c0,$dff096          ; No sprite => 87c0 è 1000011111000000
+                                    ; Il bit 5 è a 0 => Sprite Enable a 0
+                                    ; Il bit 6 è a 1 => Blitter DMA Enable
+                                    ; Il bit 7 è a 1 => Coprocessor DMA Enable
+                                    ; Il bit 8 è a 1 => Bitplane DMA Enable
+                                    ; Il bit 9 è a 1 => Enable all DMA Below ???
+                                    ; Il bit 10 è a 1 => Blitter DMA priority, evita che la CPU rubi dei cicli mentre il blitter gira)
+                                    ; Il bit 15 è a 1 => SET/CLR , stabilisce se i bit a 1 settano o cancellano
+
+    ;move.w  #$87e0,$dff096          ; Come sopra ma con gli sprite attivi
+
+    move.w  #$87e0,$dff096      ; DMACON (write) 1000011111100000
+                                ; 15 - Set Clear bit a 1 => i bit a 1 settano
+                                ; 10 - BlitPRI a 1
+                                ; 9  - DMAEN  (Abilita tutti i DMA successivi)
+                                ; 8  - BPLEN  (Bit plane DMA Enable)
+                                ; 7  - COPEN  (Coprocessor DMA Enable)
+                                ; 6  - BLTEN  (Blitter DMA enable)
+                                ; 5  - SPREN  (Sprite DMA enable)
+                                
+
+
+    ;move.w	#0,$dff1fc		; Disattiva l'AGA
+	;move.w	#$c00,$dff106		; Disattiva l'AGA
+	;move.w	#$11,$dff10c		; Disattiva l'AGA
+
+
+    ; Setto CINQUE bitplane 
+
+    lea     Bplpointers,a0 
+    move.l  #Bitplanes,d0
+
+    moveq   #5-1,d1
+PuntaBP:
+    move.w  d0,6(a0)
+    swap    d0 
+    move.w  d0,2(a0) 
+    swap    d0
+    addq.l  #8,a0
+    addi.l  #40,d0
+    dbra    d1,PuntaBP
+
+
+
+    ; Setto lo spritepointer (dff120) nello stesso modo fatto per i bitplane
+
+    lea     SpritePointers,a0
+    move.l  #Spr0,d0
+
+    move.w  d0,6(a0)
+    swap    d0
+    move.w  d0,2(a0)
+    swap    d0
+
+
+    ; Setto la copperlist, ovviamente DOPO aver disabilitato gli interrupt se no il SO potrebbe interferire
+
+    move.l  #Copper,$dff080     ; http://amiga-dev.wikidot.com/hardware:cop1lch  (Copper pointer register) E' un long word move perché il registro è una long word
+
+
+    ; Prova blitter, copio un mostro sullo schermo
+
+    ;move.w  #$8040,$dff096       ; Abilito il blitter, lo faccio qui, ma avrei dovuto farlo all'inizio sopra
+
+    tst     $dff002
+.waitblit
+    btst    #14-8,$dff002
+    bne.s   .waitblit           ; Aspetto il blitter che finisce
+
+; 09f0 
+; 0 = shift nullo
+; 9 = abilita canali A e D
+; f = copia semplice
+
+
+; ATTENZIONE: I canali A e B possono essere shiftati, in B metto la maschera, quindi devo shiftare pure quella (a nel primo nibble delle due word)
+    move.l  #$afe2a000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
+
+posY    =100         ; Posizione Y mostro, riga 50
+posX    =128/8       ; Posizione X mostro, 32  
+
+dimx    =16+16      ; 16 pixel più la word vuota per lo shift
+dimy    =16*5
+
+bltskip =(320-dimx)/8 ; Numero di byte da skippare
+
+    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
+
+    move.l  #GreenMonster,$dff050                       ; Setto la sorgente su BLTAPTH
+    move.l  #GreenMonsterMask,$dff04c                   ; Setto la maschera su BLTBPTH
+    move.l  #Bitplanes+((posY*5)*(320/8))+posX,$dff048  ; Setto lo sfondo su BLTCPTH
+    move.l  #Bitplanes+((posY*5)*(320/8))+posX,$dff054    ; Setto la destinazione su BLTDPTH
+    
+    move.w  #0,$dff064                                  ; Modulo zero per la sorgente BLTAMOD
+    move.w  #0,$dff062                                  ; Modulo zero per la sorgente maschera BLTBMOD
+    move.w  #bltskip,$dff060                            ; Modulo per il canale C con lo sfondo BLTCMOD
+    move.w  #bltskip,$dff066                           ; Setto il modulo per il canale D di destiazione BLTDMOD
+    move.w  #dimy*64+(dimx/16),$dff058                   ; Setto le dimensioni e lancio la blittata
+    
+
+
+
+
+mainloop:
+
+    add.b   #1,Spr0+1
+    add.b   #1,Spr0
+    add.b   #1,Spr0+2
+
+wframe:
+	btst #0,$dff005
+	bne.b wframe
+	cmp.b #$2a,$dff006
+	bne.b wframe
+wframe2:
+	cmp.b #$2a,$dff006
+	beq.b wframe2
+
+; Questa sotto è la versione del Waitvbl che usavo su infamia
+;Wat:
+;	cmpi.b	#$FF,$dff006
+;	bne.s	Wat
+;Wat2:
+;	cmpi.b	#$38,$dff006
+;	bne.s	Wat2	
+	
+
+
+    btst    #6,$bfe001
+    bne     mainloop
+
+
+; ===== FINE CODICE 
+
+
+; ===== RIPRISTINO SISTEMA OPERATIVO
+
+exit:
+    ; Ripristino dmacon
+    move.w  #$7fff,$dff096      ; Pulisco il regitro DMACON 0111111111111111  (il bit 15 è il control bit, quindi se è a 0 azzera tutti quelli che sono a 1)
+    or.w    #$8200,d3           ; OR con 1000001000000000 per settare il bit 15 e il bit 9 DMAEN
+    move.w  d3,$dff096          ; Ripristino il DMACON
+
+    move.l  d4,$dff080          ; Ripristiniamo la copperlist originale del SO
+
+    or      #$c000,d5           ; Setto a 1 il bit più significativo, quello di controllo, RIVEDERE PERCHE' E C000 E NON 8000
+                                ; perché è 1100000000000000, devo riattivare il bit 14 (master interrupt) mettendogli 1 (bit 15 set/clr)
+                                ; http://amiga-dev.wikidot.com/hardware:intenar
+    move    d5,$dff09a          ; Ripristino l'INTENA come era prima di disattivare tutti gli interrupt
+
+    moveq   #0,d0               ; No error code al sistema operativo
+
+    rts
+
+; ===== FINE RIPRISTINO SISTEMA OPERATIVO E USCITA
+
+
+; Routine per il waitraster 
+; Aspetta la rasterline in d0.w , modifica d0-d2/a0
+
+WaitRaster:
+    move.l  #$1ff00,d2
+    lsl.l   #8,d0
+    and.l   d2,d0
+    lea     $dff004,a0
+.wr:
+    move.l  (a0),d1
+    and.l   d2,d1
+    cmp.l   d1,d0
+    bne.s   .wr
+    rts
+
+
+
+
+
+gfxname:
+    dc.b    "graphics.library",0
+
+
+    SECTION tut,DATA_C
+
+    EVEN
+
+Copper:
+    dc.w    $1fc,0          ; slow fetch mode, per compatibilità con AGA
+ 
+  ; DMA Display Window: Valori classici di Amiga, non overscan
+   ; Ogni valore esadecimale corrisponde a 2 pixel, quindi ogni volta per esempio che riduciamo la finestra di 16 pixel dobbiamo togliere 8
+   ; da $92 e $94
+
+    dc.w $8e,$2c81      ; Display window start (top left) http://amiga-dev.wikidot.com/hardware:diwstrt
+    dc.w $90,$2cc1      ; Display window stop (bottom right)
+    dc.w $92,$38        ; Display data fetch start http://amiga-dev.wikidot.com/hardware:ddfstrt
+    dc.w $94,$d0        ; Display data fetch stop
+
+bplane_modulo = (320/16)*4
+
+    dc.w    $108,40*4          ; BPLxMOD: http://amiga-dev.wikidot.com/hardware:bplxmod  - Modulo a zero, non devo saltare niente nei bitplane
+    dc.w    $10a,40*4
+
+
+; Palette
+    dc.w	$0180,$0001,$0182,$0035,$0184,$0046,$0186,$0467
+	dc.w	$0188,$0068,$018a,$0578,$018c,$018a,$018e,$01ac
+	dc.w	$0190,$02df,$0192,$068a,$0194,$06ac,$0196,$05ef
+	dc.w	$0198,$08ab,$019a,$09bc,$019c,$0ade,$019e,$0dff
+	dc.w	$01a0,$0d00,$01a2,$0800,$01a4,$0e80,$01a6,$0ff0
+	dc.w	$01a8,$0333,$01aa,$0444,$01ac,$0555,$01ae,$0666
+	dc.w	$01b0,$0777,$01b2,$0888,$01b4,$0090,$01b6,$00d0
+	dc.w	$01b8,$0333,$01ba,$0777,$01bc,$0bbb,$01be,$0fff
+
+; dff120    SPR0PTH     Sprite 0 pointer, 5 bit alti
+; dff122    SPR0PTL     Sprite 0 pointer, 15 bit bassi
+; e così via per gli altri 7: http://amiga-dev.wikidot.com/hardware:sprxpth
+
+SpritePointers:
+	dc.w $120,0
+	dc.w $122,0
+
+	dc.w $124,0
+	dc.w $126,0
+	dc.w $128,0
+	dc.w $12a,0
+	dc.w $12c,0
+	dc.w $12e,0
+	dc.w $130,0
+	dc.w $132,0
+	dc.w $134,0
+	dc.w $136,0
+	dc.w $138,0
+	dc.w $13a,0
+	dc.w $13c,0
+	dc.w $13e,0
+
+
+
+Bplpointers:
+	dc.w	$e0,0,$e2,0
+	dc.w	$e4,0,$e6,0
+	dc.w	$e8,0,$ea,0
+	dc.w	$ec,0,$ee,0
+	dc.w	$f0,0,$f2,0
+
+   dc.w    $100,$5200      ; move 5200 in dff100 (BPLCON0), le move instructions partono da 080, mettere dopo il setting del bitplane, ma a me non ha mai dato problemi
+                            ; 0010100100000000
+
+
+    ; Per finire la copperlist inseriamo un comando wait (fffe), se vogliamo aspettare la horizonal scanline AC e la posizione orizzontale 07
+    ; dc.w    $ac07,$fffe     ; $fffe è la "maschera" che maschera l'ultimo bit meno significativo.
+    ; per dire al copper che non ci sono più istruzioni in questo frame gli diamo una wait position impossibile
+    dc.w    $ffff,$fffe
+
+
+w   =320
+h   =256
+bplsize =w*h/8
+
+    EVEN
+Bitplanes:
+;    dcb.b (bplsize/2)*5
+;    dcb.b   (40*200)*5
+
+;     dcb.b   (40*256)*5,0
+
+;    incbin "Back.raw"
+    incbin "Back.raw"
+
+GreenMonster:
+    incbin "GreenMon.raw"
+
+GreenMonsterMask
+    incbin "GreenMonMask.raw"
+
+Spr0:
+	dc.w $2c40,$3c00	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
+	dc.w %0000011111000000,%0000000000000000
+	dc.w %0001111111110000,%0000000000000000
+	dc.w %0011111111111000,%0000000000000000
+	dc.w %0111111111111100,%0000000000000000
+	dc.w %0110011111001100,%0001100000110000
+	dc.w %1110011111001110,%0001100000110000
+	dc.w %1111111111111110,%0000000000000000
+	dc.w %1111111111111110,%0000000000000000
+	dc.w %1111111111111110,%0010000000001000
+	dc.w %1111111111111110,%0001100000110000
+	dc.w %0111111111111100,%0000011111000000
+	dc.w %0111111111111100,%0000000000000000
+	dc.w %0011111111111000,%0000000000000000
+	dc.w %0001111111110000,%0000000000000000
+	dc.w %0000011111000000,%0000000000000000
+	dc.w %0000000000000000,%0000000000000000
+	dc.w 0,0
+
+NullSpr:
+	dc.w $2a20,$2b00
+	dc.w 0,0
+	dc.w 0,0
