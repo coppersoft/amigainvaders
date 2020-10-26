@@ -78,10 +78,8 @@ START:
 ; E' meglio aspettare l'end of frame prima di smaneggiare con questi registri, in teoria dovrebbe sistemare lo sprite flickering
 ; ma a me non funziona proprio
     move.w  #$138,d0
-    jsr     WaitRaster
-    ;bsr.b   WaitRaster          ; Uso brs.b perché il codice è vicino, non è un long jump per cui non mi serve jsr
-                                 ; ATTENZIONE, non so perché ma con VASM non funziona, da errore, quindi rimetto jsr.
-
+    bsr.w   WaitRaster
+    
     move.w  #$7fff,$dff09a           ; Disabilito tutti i bit in INTENA (interrupt enable)
     move.w  #$7fff,$dff09c          ; (Buona pratica:) Disabilito tutti i bit in INTREQ
     move.w  #$7fff,$dff09c          ; (Buona pratica:) Disabilito tutti i bit in INTREQ, faccio due volte per renderlo compatibile con A4000 che ha un bug
@@ -153,24 +151,6 @@ PuntaBP:
     move.l  #Copper,$dff080     ; http://amiga-dev.wikidot.com/hardware:cop1lch  (Copper pointer register) E' un long word move perché il registro è una long word
 
 
-; inizio test routine blit
-
-    lea     GreenMonster,a0
-    lea     GreenMonsterMask,a1
-    lea     Bitplanes,a2
-
-    move.l  #20,d0      
-    move.l  #16,d1
-    move.l  #2,d2
-    move.l  #16,d3
-    move.l  #5,d4
-
-    bsr.w   BlitBob
-
-
-
-; fine test routine blit
-
 
 
 mainloop:
@@ -178,15 +158,27 @@ mainloop:
     add.b   #1,Spr0+1
     add.b   #1,Spr0
     add.b   #1,Spr0+2
+ 
+    bsr.w   CopiaSfondo
 
-wframe:
-	btst #0,$dff005
-	bne.b wframe
-	cmp.b #$2a,$dff006
-	bne.b wframe
-wframe2:
-	cmp.b #$2a,$dff006
-	beq.b wframe2
+; Muovo il bob
+
+    lea     GreenMonster,a0
+    lea     GreenMonsterMask,a1
+    lea     Bitplanes,a2
+
+    move.w  BobPosX,d0      
+    move.w  #16,d1
+    move.w  #2,d2
+    move.w  #16,d3
+    move.w  #5,d4
+
+    bsr.w   BlitBob
+
+    addi.w  #1,BobPosX
+
+    bsr.w   wframe
+
 
 ; Questa sotto è la versione del Waitvbl che usavo su infamia
 ;Wat:
@@ -205,7 +197,7 @@ wframe2:
 ; ===== FINE CODICE 
 
 
-
+; *************** INIZIO ROUTINE UTILITY
 
 
 ; Routine per il waitraster 
@@ -301,6 +293,49 @@ BlitBob:
 
     rts
 
+
+
+
+CopiaSfondo:
+
+    tst     $dff002
+.waitblit
+    btst    #14-8,$dff002
+    bne.s   .waitblit           ; Aspetto il blitter che finisce
+
+    ; 0 = shift nullo
+    ; 9 = 1001: abilito solo i canali A e D
+    ; f0 = minterm, copia semplice
+    move.l  #$09f00000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
+
+    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
+
+    move.l  #Background,$dff050    ; Setto la sorgente su BLTAPTH
+    move.l  #Bitplanes,$dff054    ; Setto la destinazione su BLTDPTH
+    move.w  #0,$dff064    ; Modulo zero per la sorgente BLTAMOD
+    move.w  #0,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
+    
+
+    move.w  #%1111111111010100,$dff058  ; Dimensioni massime
+    rts
+
+
+
+wframe:
+	btst #0,$dff005
+	bne.b wframe
+	cmp.b #$2a,$dff006
+	bne.b wframe
+wframe2:
+	cmp.b #$2a,$dff006
+	beq.b wframe2
+    rts
+; *************** FINE ROUTINE UTILITY
+
+
+
+
+
 gfxname:
     dc.b    "graphics.library",0
 
@@ -323,7 +358,7 @@ Copper:
 
 bplane_modulo = (320/16)*4
 
-    dc.w    $108,40*4          ; BPLxMOD: http://amiga-dev.wikidot.com/hardware:bplxmod  - Modulo a zero, non devo saltare niente nei bitplane
+    dc.w    $108,40*4          ; BPLxMOD: http://amiga-dev.wikidot.com/hardware:bplxmod  - Modulo interleaved
     dc.w    $10a,40*4
 
 
@@ -379,18 +414,14 @@ Bplpointers:
     dc.w    $ffff,$fffe
 
 
-w   =320
-h   =256
-bplsize =w*h/8
+
 
     EVEN
 Bitplanes:
-;    dcb.b (bplsize/2)*5
-;    dcb.b   (40*200)*5
 
-;     dcb.b   (40*256)*5,0
+    dcb.b   (40*256)*5,0
 
-;    incbin "Back.raw"
+Background:
     incbin "Back.raw"
 
 GreenMonster:
@@ -398,6 +429,9 @@ GreenMonster:
 
 GreenMonsterMask
     incbin "GreenMonMask.raw"
+
+BobPosX:
+    dc.w    0
 
 Spr0:
 	dc.w $2c40,$3c00	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
