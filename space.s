@@ -115,46 +115,23 @@ PuntaBP:
     move.l  #Copper,$dff080     ; http://amiga-dev.wikidot.com/hardware:cop1lch  (Copper pointer register) E' un long word move perché il registro è una long word
 
 
-    ; Prova blitter, copio un mostro sullo schermo
+; inizio test routine blit
 
-    ;move.w  #$8040,$dff096       ; Abilito il blitter, lo faccio qui, ma avrei dovuto farlo all'inizio sopra
+    lea     GreenMonster,a0
+    lea     GreenMonsterMask,a1
+    lea     Bitplanes,a2
 
-    tst     $dff002
-.waitblit
-    btst    #14-8,$dff002
-    bne.s   .waitblit           ; Aspetto il blitter che finisce
+    move.l  #16,d0
+    move.l  #16,d1
+    move.l  #2,d2
+    move.l  #16,d3
+    move.l  #5,d4
 
-; 09f0 
-; 0 = shift nullo
-; 9 = abilita canali A e D
-; f = copia semplice
+    bsr.w   BlitBob
 
 
-; ATTENZIONE: I canali A e B possono essere shiftati, in B metto la maschera, quindi devo shiftare pure quella (a nel primo nibble delle due word)
-    move.l  #$afe2a000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
 
-posY    =100         ; Posizione Y mostro, riga 50
-posX    =128/8       ; Posizione X mostro, 32  
-
-dimx    =16+16      ; 16 pixel più la word vuota per lo shift
-dimy    =16*5
-
-bltskip =(320-dimx)/8 ; Numero di byte da skippare
-
-    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
-
-    move.l  #GreenMonster,$dff050                       ; Setto la sorgente su BLTAPTH
-    move.l  #GreenMonsterMask,$dff04c                   ; Setto la maschera su BLTBPTH
-    move.l  #Bitplanes+((posY*5)*(320/8))+posX,$dff048  ; Setto lo sfondo su BLTCPTH
-    move.l  #Bitplanes+((posY*5)*(320/8))+posX,$dff054    ; Setto la destinazione su BLTDPTH
-    
-    move.w  #0,$dff064                                  ; Modulo zero per la sorgente BLTAMOD
-    move.w  #0,$dff062                                  ; Modulo zero per la sorgente maschera BLTBMOD
-    move.w  #bltskip,$dff060                            ; Modulo per il canale C con lo sfondo BLTCMOD
-    move.w  #bltskip,$dff066                           ; Setto il modulo per il canale D di destiazione BLTDMOD
-    move.w  #dimy*64+(dimx/16),$dff058                   ; Setto le dimensioni e lancio la blittata
-    
-
+; fine test routine blit
 
 
 
@@ -228,8 +205,82 @@ WaitRaster:
     rts
 
 
+; a0    Indirizzo Bob
+; a1    Indirizzo Maschera
+; a2    Indirizzo bitplane (interleaved)
+
+; d0    Posizione X
+; d1    Posizione Y
+; d2    Larghezza in word
+; d3    Altezza
+; d4    Numero bitplane
+
+BlitBob:
+
+    tst     $dff002
+.waitblit
+    btst    #14-8,$dff002
+    bne.s   .waitblit           ; Aspetto il blitter che finisce
+
+    move.l  d0,d5           ; Mi salvo la posizione X in d5
+    andi.b  #%00000111,d5   ; Prendo il valore dello shift
+    lsr.l   #3,d0           ; Divido per 8 prendendo i byte di cui spostarmi a destra
+
+    move.l  #$0fe20000,d7  ; Dico al blitter che operazione effettuare, BLTCON
+
+    lsl.l   #7,d5
+    lsl.l   #5,d5
+    or.l    d5,d7           ; Setto lo shift per il canale DMA B
+    lsl.l   #7,d5
+    lsl.l   #7,d5
+    lsl.l   #2,d5
+    
+    or.l    d5,d7           ; Setto lo shift per il canale DMA A
+
+    move.l  d7,$dff040      ; Dico al blitter che operazione effettuare, BLTCON
+
+    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
+
+    move.l  a0,$dff050          ; Setto la sorgente su BLTAPTH
+    move.l  a1,$dff04c          ; Setto la maschera su BLTBPTH
+
+; #Bitplanes+((posY*5)*(320/8))+posX,$dff048
+
+    mulu.w  #40,d1              ; Scendo di 40 byte per ogni posizione Y
+    mulu.w  d4,d1               ; Per il numero dei bitplane
+    add.l   d0,d1               ; Gli aggiungo i byte di scostamento a destra della posizione X
+    add.l   d1,a2               ; Offset con l'inizio dei bitplane
+
+    move.l  a2,$dff048          ; Setto lo sfondo su BLTCPTH
+    move.l  a2,$dff054          ; Setto la destinazione su BLTDPTH
+
+    ; Calcolo moduli
+
+    lsl.l   #1,d2               ; Moltiplico d2 per due, per ottenere i byte della larghezza
+    move.l  #40,d6              ; 40 in d6 (numero di byte per ogni riga)
+    sub.l   d2,d6               ; 40 - d2*2 e trovo il modulo
+
+    move.w  #0,$dff064          ; Modulo zero per la sorgente BLTAMOD
+    move.w  #0,$dff062          ; Modulo zero per la sorgente maschera BLTBMOD
+;    move.w  d6,$dff060          ; Modulo per il canale C con lo sfondo BLTCMOD
+;    move.w  d6,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
+
+    move.w  #40-4,$dff060          ; Modulo per il canale C con lo sfondo BLTCMOD
+    move.w  #40-4,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
 
 
+    ; Bltsize: dimensione y * 64 + dim x
+
+    mulu.w  d4,d3               ; Altezza * numero di bitplane
+    mulu.w  #64,d3
+
+    lsr.l   #1,d2               ; Riporto la larghezza in word
+
+    add.w   d2,d3
+    move.w  d3,$dff058                   ; Setto le dimensioni e lancio la blittata
+
+
+    rts
 
 gfxname:
     dc.b    "graphics.library",0

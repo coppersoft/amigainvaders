@@ -51,3 +51,5 @@ Thumbs.db
 # Uae files
 *.uaem
 
+# Object files
+*.out
