@@ -35,7 +35,45 @@ init:
 
 ; ===== FINE BLOCCO DEL SISTEMA OPERATIVO
 
+; Mi salvo nello stack i registri usati per salvare lo stato del SO 
+
+    movem.l	d3-d5,-(SP)
+
+    bsr.w   START
+
+; Recupero i registri salvati prima nello stack
+    movem.l (SP)+,d3-d5
+
+
+; ===== RIPRISTINO SISTEMA OPERATIVO
+
+exit:
+    ; Ripristino dmacon
+    move.w  #$7fff,$dff096      ; Pulisco il regitro DMACON 0111111111111111  (il bit 15 è il control bit, quindi se è a 0 azzera tutti quelli che sono a 1)
+    or.w    #$8200,d3           ; OR con 1000001000000000 per settare il bit 15 e il bit 9 DMAEN
+    move.w  d3,$dff096          ; Ripristino il DMACON
+
+    move.l  d4,$dff080          ; Ripristiniamo la copperlist originale del SO
+
+    or      #$c000,d5           ; Setto a 1 il bit più significativo, quello di controllo, RIVEDERE PERCHE' E C000 E NON 8000
+                                ; perché è 1100000000000000, devo riattivare il bit 14 (master interrupt) mettendogli 1 (bit 15 set/clr)
+                                ; http://amiga-dev.wikidot.com/hardware:intenar
+    move    d5,$dff09a          ; Ripristino l'INTENA come era prima di disattivare tutti gli interrupt
+
+    moveq   #0,d0               ; No error code al sistema operativo
+
+    rts
+
+; ===== FINE RIPRISTINO SISTEMA OPERATIVO E USCITA
+
+
+
+
+
+
 ; ===== INIZIO CODICE 
+
+START:
 
 ; E' meglio aspettare l'end of frame prima di smaneggiare con questi registri, in teoria dovrebbe sistemare lo sprite flickering
 ; ma a me non funziona proprio
@@ -121,7 +159,7 @@ PuntaBP:
     lea     GreenMonsterMask,a1
     lea     Bitplanes,a2
 
-    move.l  #16,d0
+    move.l  #20,d0      
     move.l  #16,d1
     move.l  #2,d2
     move.l  #16,d3
@@ -163,30 +201,11 @@ wframe2:
     btst    #6,$bfe001
     bne     mainloop
 
-
+    rts
 ; ===== FINE CODICE 
 
 
-; ===== RIPRISTINO SISTEMA OPERATIVO
 
-exit:
-    ; Ripristino dmacon
-    move.w  #$7fff,$dff096      ; Pulisco il regitro DMACON 0111111111111111  (il bit 15 è il control bit, quindi se è a 0 azzera tutti quelli che sono a 1)
-    or.w    #$8200,d3           ; OR con 1000001000000000 per settare il bit 15 e il bit 9 DMAEN
-    move.w  d3,$dff096          ; Ripristino il DMACON
-
-    move.l  d4,$dff080          ; Ripristiniamo la copperlist originale del SO
-
-    or      #$c000,d5           ; Setto a 1 il bit più significativo, quello di controllo, RIVEDERE PERCHE' E C000 E NON 8000
-                                ; perché è 1100000000000000, devo riattivare il bit 14 (master interrupt) mettendogli 1 (bit 15 set/clr)
-                                ; http://amiga-dev.wikidot.com/hardware:intenar
-    move    d5,$dff09a          ; Ripristino l'INTENA come era prima di disattivare tutti gli interrupt
-
-    moveq   #0,d0               ; No error code al sistema operativo
-
-    rts
-
-; ===== FINE RIPRISTINO SISTEMA OPERATIVO E USCITA
 
 
 ; Routine per il waitraster 
