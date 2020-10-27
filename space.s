@@ -155,9 +155,9 @@ PuntaBP:
 
 mainloop:
 
-    add.b   #1,Spr0+1
-    add.b   #1,Spr0
-    add.b   #1,Spr0+2
+    ;add.b   #1,Spr0+1
+    ;add.b   #1,Spr0
+    ;add.b   #1,Spr0+2
  
     bsr.w   CopiaSfondo
 
@@ -167,28 +167,29 @@ mainloop:
     lea     GreenMonsterMask,a1
     lea     Bitplanes,a2
 
+
+    clr.l   d0
     move.w  BobPosX,d0      
-    move.w  #16,d1
+    move.w  #0,d1
     move.w  #2,d2
     move.w  #16,d3
     move.w  #5,d4
 
     bsr.w   BlitBob
+    ;bsr.w   BlitBobManuale
+
+;    clr.l   d0
+;    move.w  #20,d0
+;aspettatanto:
+    bsr.w   wframe
+;    dbra    d0,aspettatanto
+
+    btst    #10,$dff016 ; test RIGHT mouse click
+    bne     nonsposta
 
     addi.w  #1,BobPosX
-
-    bsr.w   wframe
-
-
-; Questa sotto è la versione del Waitvbl che usavo su infamia
-;Wat:
-;	cmpi.b	#$FF,$dff006
-;	bne.s	Wat
-;Wat2:
-;	cmpi.b	#$38,$dff006
-;	bne.s	Wat2	
 	
-
+nonsposta:
 
     btst    #6,$bfe001
     bne     mainloop
@@ -215,6 +216,37 @@ WaitRaster:
     bne.s   .wr
     rts
 
+; ********** inizio TOGLIERE
+
+BlitBobManuale:
+
+    tst     $dff002
+.waitblit
+    btst    #14-8,$dff002
+    bne.s   .waitblit           ; Aspetto il blitter che finisce
+
+    move.l  #$0fe20000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
+
+    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
+
+    move.l  #GreenMonster,$dff050                       ; Setto la sorgente su BLTAPTH
+    move.l  #GreenMonsterMask,$dff04c                   ; Setto la maschera su BLTBPTH
+    move.l  #Bitplanes,$dff048  ; Setto lo sfondo su BLTCPTH
+    move.l  #Bitplanes,$dff054    ; Setto la destinazione su BLTDPTH
+
+bltskip =(320-32)/8 ; Numero di byte da skippare
+
+    move.w  #0,$dff064                                  ; Modulo zero per la sorgente BLTAMOD
+    move.w  #0,$dff062                                  ; Modulo zero per la sorgente maschera BLTBMOD
+    move.w  #bltskip,$dff060                            ; Modulo per il canale C con lo sfondo BLTCMOD
+    move.w  #bltskip,$dff066                           ; Setto il modulo per il canale D di destiazione BLTDMOD
+    move.w  #16*5*64+2,$dff058                            ; Setto le dimensioni e lancio la blittata
+
+    rts
+; ********** fine TOGLIERE
+
+
+
 
 ; a0    Indirizzo Bob
 ; a1    Indirizzo Maschera
@@ -234,8 +266,9 @@ BlitBob:
     bne.s   .waitblit           ; Aspetto il blitter che finisce
 
     move.l  d0,d5           ; Mi salvo la posizione X in d5
-    andi.b  #%00000111,d5   ; Prendo il valore dello shift
-    lsr.l   #3,d0           ; Divido per 8 prendendo i byte di cui spostarmi a destra
+    andi.l  #%00001111,d5   ; Prendo il valore dello shift
+    lsr.l   #4,d0           ; Divido per 16 prendendo le word di cui spostarmi a destra
+    lsl.l   #1,d0           ; Rimoltiplico per due per ottenere i byte
 
     move.l  #$0fe20000,d7  ; Dico al blitter che operazione effettuare, BLTCON
 
@@ -249,6 +282,7 @@ BlitBob:
     or.l    d5,d7           ; Setto lo shift per il canale DMA A
 
     move.l  d7,$dff040      ; Dico al blitter che operazione effettuare, BLTCON
+
 
     move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
 
@@ -264,6 +298,9 @@ BlitBob:
 
     move.l  a2,$dff048          ; Setto lo sfondo su BLTCPTH
     move.l  a2,$dff054          ; Setto la destinazione su BLTDPTH
+
+    ;move.l  #Bitplanes,$dff048
+    ;move.l  #Bitplanes,$dff054
 
     ; Calcolo moduli
 
@@ -422,7 +459,7 @@ Bitplanes:
     dcb.b   (40*256)*5,0
 
 Background:
-    incbin "Back.raw"
+    incbin "BackGrid.raw"
 
 GreenMonster:
     incbin "GreenMon.raw"
@@ -431,10 +468,10 @@ GreenMonsterMask
     incbin "GreenMonMask.raw"
 
 BobPosX:
-    dc.w    0
+    dc.w    7
 
 Spr0:
-	dc.w $2c40,$3c00	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
+	dc.w $2c80,$3c00	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
 	dc.w %0000011111000000,%0000000000000000
 	dc.w %0001111111110000,%0000000000000000
 	dc.w %0011111111111000,%0000000000000000
