@@ -413,7 +413,7 @@ Bitplanes:
     dcb.b   (40*256)*5,0
 
 Background:
-    incbin "BackGrid.raw"
+    incbin "Back.raw"
 
 GreenMonster:
     incbin "GreenMon.raw"
