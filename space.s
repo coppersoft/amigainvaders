@@ -137,13 +137,13 @@ PuntaBP:
 
     ; Setto lo spritepointer (dff120) nello stesso modo fatto per i bitplane
 
-    lea     SpritePointers,a0
-    move.l  #Spr0,d0
+;    lea     SpritePointers,a0
+;    move.l  #Spr0,d0
 
-    move.w  d0,6(a0)
-    swap    d0
-    move.w  d0,2(a0)
-    swap    d0
+;    move.w  d0,6(a0)
+;    swap    d0
+;    move.w  d0,2(a0)
+;    swap    d0
 
 
     ; Setto la copperlist, ovviamente DOPO aver disabilitato gli interrupt se no il SO potrebbe interferire
@@ -152,14 +152,15 @@ PuntaBP:
 
 
 
+    lea     Background,a0
+    lea     Bitplanes,a1
+    move.w  #5,d0
+    move.w  #26,d1
+    bsr.w   SimpleBlit
 
 mainloop:
 
-    ;add.b   #1,Spr0+1
-    ;add.b   #1,Spr0
-    ;add.b   #1,Spr0+2
- 
-    bsr.w   CopiaSfondo
+;    bsr.w   CopiaSfondo
 
 ; Muovo il bob
 
@@ -170,7 +171,7 @@ mainloop:
 
     clr.l   d0
     move.w  BobPosX,d0      
-    move.w  #0,d1
+    move.w  #40,d1
     move.w  #2,d2
     move.w  #16,d3
     move.w  #5,d4
@@ -308,6 +309,35 @@ CopiaSfondo:
     
 
     move.w  #%1111111111010100,$dff058  ; Dimensioni massime
+    rts
+
+;   a0 = sorgente
+;   a1 = destinazione
+;   d0 = numero di righe
+;   d1 = numero Bitplane
+SimpleBlit:
+    tst     $dff002
+.waitblit
+    btst    #14-8,$dff002
+    bne.s   .waitblit           ; Aspetto il blitter che finisce
+
+    ; 0 = shift nullo
+    ; 9 = 1001: abilito solo i canali A e D
+    ; f0 = minterm, copia semplice
+    move.l  #$09f00000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
+
+    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
+
+    move.l  a0,$dff050    ; Setto la sorgente su BLTAPTH
+    move.l  a1,$dff054    ; Setto la destinazione su BLTDPTH
+    move.w  #0,$dff064    ; Modulo zero per la sorgente BLTAMOD
+    move.w  #0,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
+    
+    mulu.w  d1,d0         ; Moltiplico il numero di righe da copiare per i bitplane
+    lsl.w   #6,d0
+    addi.w  #20,d0
+
+    move.w  d0,$dff058  ; Dimensioni e blittata
     rts
 
 
