@@ -176,13 +176,8 @@ mainloop:
     move.w  #5,d4
 
     bsr.w   BlitBob
-    ;bsr.w   BlitBobManuale
 
-;    clr.l   d0
-;    move.w  #20,d0
-;aspettatanto:
     bsr.w   wframe
-;    dbra    d0,aspettatanto
 
     btst    #10,$dff016 ; test RIGHT mouse click
     bne     nonsposta
@@ -215,37 +210,6 @@ WaitRaster:
     cmp.l   d1,d0
     bne.s   .wr
     rts
-
-; ********** inizio TOGLIERE
-
-BlitBobManuale:
-
-    tst     $dff002
-.waitblit
-    btst    #14-8,$dff002
-    bne.s   .waitblit           ; Aspetto il blitter che finisce
-
-    move.l  #$0fe20000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
-
-    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
-
-    move.l  #GreenMonster,$dff050                       ; Setto la sorgente su BLTAPTH
-    move.l  #GreenMonsterMask,$dff04c                   ; Setto la maschera su BLTBPTH
-    move.l  #Bitplanes,$dff048  ; Setto lo sfondo su BLTCPTH
-    move.l  #Bitplanes,$dff054    ; Setto la destinazione su BLTDPTH
-
-bltskip =(320-32)/8 ; Numero di byte da skippare
-
-    move.w  #0,$dff064                                  ; Modulo zero per la sorgente BLTAMOD
-    move.w  #0,$dff062                                  ; Modulo zero per la sorgente maschera BLTBMOD
-    move.w  #bltskip,$dff060                            ; Modulo per il canale C con lo sfondo BLTCMOD
-    move.w  #bltskip,$dff066                           ; Setto il modulo per il canale D di destiazione BLTDMOD
-    move.w  #16*5*64+2,$dff058                            ; Setto le dimensioni e lancio la blittata
-
-    rts
-; ********** fine TOGLIERE
-
-
 
 
 ; a0    Indirizzo Bob
@@ -289,8 +253,6 @@ BlitBob:
     move.l  a0,$dff050          ; Setto la sorgente su BLTAPTH
     move.l  a1,$dff04c          ; Setto la maschera su BLTBPTH
 
-; #Bitplanes+((posY*5)*(320/8))+posX,$dff048
-
     mulu.w  #40,d1              ; Scendo di 40 byte per ogni posizione Y
     mulu.w  d4,d1               ; Per il numero dei bitplane
     add.l   d0,d1               ; Gli aggiungo i byte di scostamento a destra della posizione X
@@ -298,9 +260,6 @@ BlitBob:
 
     move.l  a2,$dff048          ; Setto lo sfondo su BLTCPTH
     move.l  a2,$dff054          ; Setto la destinazione su BLTDPTH
-
-    ;move.l  #Bitplanes,$dff048
-    ;move.l  #Bitplanes,$dff054
 
     ; Calcolo moduli
 
@@ -310,12 +269,8 @@ BlitBob:
 
     move.w  #0,$dff064          ; Modulo zero per la sorgente BLTAMOD
     move.w  #0,$dff062          ; Modulo zero per la sorgente maschera BLTBMOD
-;    move.w  d6,$dff060          ; Modulo per il canale C con lo sfondo BLTCMOD
-;    move.w  d6,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
-
-    move.w  #40-4,$dff060          ; Modulo per il canale C con lo sfondo BLTCMOD
-    move.w  #40-4,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
-
+    move.w  d6,$dff060          ; Modulo per il canale C con lo sfondo BLTCMOD
+    move.w  d6,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
 
     ; Bltsize: dimensione y * 64 + dim x
 
@@ -326,7 +281,6 @@ BlitBob:
 
     add.w   d2,d3
     move.w  d3,$dff058                   ; Setto le dimensioni e lancio la blittata
-
 
     rts
 
@@ -468,7 +422,7 @@ GreenMonsterMask
     incbin "GreenMonMask.raw"
 
 BobPosX:
-    dc.w    7
+    dc.w    0
 
 Spr0:
 	dc.w $2c80,$3c00	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
