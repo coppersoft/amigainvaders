@@ -160,7 +160,7 @@ PuntaBP:
 
 mainloop:
 
-;    bsr.w   CopiaSfondo
+    bsr.w   CopiaSfondo
 
 ; Muovo il bob
 
@@ -276,7 +276,6 @@ BlitBob:
     ; Bltsize: dimensione y * 64 + dim x
 
     mulu.w  d4,d3               ; Altezza * numero di bitplane
-    mulu.w  #64,d3
     lsl.l   #6,d3               ; Sposto l'altezza nei 10 bit alti di BLTSIZE
 
     lsr.l   #1,d2               ; Riporto la larghezza in word
