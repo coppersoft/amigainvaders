@@ -287,15 +287,24 @@ BlitBob:
 
 
 
-
+; TODO: ATTENZIONE QUA!
+; Sto copiando bellamente un'intera schermata a ogni frame, non so se il
+; blitter ce la fa al 50mo di secondo. Eventualmente inventarsi qualcos'altro.
 CopiaSfondo:
 
-    lea     Background+(26*5),a0
-    lea     Bitplanes+(26*5),a1
+    lea     Background+(26*40*5),a0
+    lea     Bitplanes+(26*40*5),a1
     move.w  #200,d0
     move.w  #5,d1
     bsr.w   SimpleBlit
     
+    lea     Background+(226*40*5),a0
+    lea     Bitplanes+(226*40*5),a1
+    move.w  #30,d0
+    move.w  #5,d1
+    bsr.w   SimpleBlit
+
+
     rts
 
 ;   a0 = sorgente
