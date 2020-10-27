@@ -290,25 +290,12 @@ BlitBob:
 
 CopiaSfondo:
 
-    tst     $dff002
-.waitblit
-    btst    #14-8,$dff002
-    bne.s   .waitblit           ; Aspetto il blitter che finisce
-
-    ; 0 = shift nullo
-    ; 9 = 1001: abilito solo i canali A e D
-    ; f0 = minterm, copia semplice
-    move.l  #$09f00000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
-
-    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
-
-    move.l  #Background,$dff050    ; Setto la sorgente su BLTAPTH
-    move.l  #Bitplanes,$dff054    ; Setto la destinazione su BLTDPTH
-    move.w  #0,$dff064    ; Modulo zero per la sorgente BLTAMOD
-    move.w  #0,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
+    lea     Background+(26*5),a0
+    lea     Bitplanes+(26*5),a1
+    move.w  #200,d0
+    move.w  #5,d1
+    bsr.w   SimpleBlit
     
-
-    move.w  #%1111111111010100,$dff058  ; Dimensioni massime
     rts
 
 ;   a0 = sorgente
