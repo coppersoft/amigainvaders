@@ -549,20 +549,148 @@ BobPosX:
 ; 2 = Yellow monster
 ; Se X.w è FFFF => Fine lista.
 Monsters:
+
+; Fila mostri verdi
+
     dc.w    16
-    dc.w    32
+    dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    48
-    dc.w    32
+    dc.w    16*3
+    dc.w    40
+    dc.w    0
+    dc.w    1
+
+    dc.w    16*5
+    dc.w    40
+    dc.w    0
+    dc.w    1
+
+    dc.w    16*7
+    dc.w    40
+    dc.w    0
+    dc.w    1
+
+    dc.w    16*9
+    dc.w    40
+    dc.w    0
+    dc.w    1
+
+    dc.w    16*11
+    dc.w    40
+    dc.w    0
+    dc.w    1
+
+    dc.w    16*13
+    dc.w    40
+    dc.w    0
+    dc.w    1
+
+    dc.w    16*15
+    dc.w    40
+    dc.w    0
+    dc.w    1
+
+    dc.w    16*17
+    dc.w    40
+    dc.w    0
+    dc.w    1
+
+; Fila mostri rossi
+
+    dc.w    16
+    dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    76
-    dc.w    32
+    dc.w    16*3
+    dc.w    70
+    dc.w    1
+    dc.w    1
+
+    dc.w    16*5
+    dc.w    70
+    dc.w    1
+    dc.w    1
+
+    dc.w    16*7
+    dc.w    70
+    dc.w    1
+    dc.w    1
+
+    dc.w    16*9
+    dc.w    70
+    dc.w    1
+    dc.w    1
+
+    dc.w    16*11
+    dc.w    70
+    dc.w    1
+    dc.w    1
+
+    dc.w    16*13
+    dc.w    70
+    dc.w    1
+    dc.w    1
+
+    dc.w    16*15
+    dc.w    70
+    dc.w    1
+    dc.w    1
+
+    dc.w    16*17
+    dc.w    70
+    dc.w    1
+    dc.w    1
+
+; Fila mostri gialli
+
+    dc.w    16
+    dc.w    100
     dc.w    2
     dc.w    1
+
+    dc.w    16*3
+    dc.w    100
+    dc.w    2
+    dc.w    1
+
+    dc.w    16*5
+    dc.w    100
+    dc.w    2
+    dc.w    1
+
+    dc.w    16*7
+    dc.w    100
+    dc.w    2
+    dc.w    1
+
+    dc.w    16*9
+    dc.w    100
+    dc.w    2
+    dc.w    1
+
+    dc.w    16*11
+    dc.w    100
+    dc.w    2
+    dc.w    1
+
+    dc.w    16*13
+    dc.w    100
+    dc.w    2
+    dc.w    1
+
+    dc.w    16*15
+    dc.w    100
+    dc.w    2
+    dc.w    1
+
+    dc.w    16*17
+    dc.w    100
+    dc.w    2
+    dc.w    1
+
     dc.w    $ffff
 
 
