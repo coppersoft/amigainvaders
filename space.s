@@ -166,6 +166,7 @@ mainloop:
 
     lea     GreenMonster,a0
     lea     GreenMonsterMask,a1
+
     lea     Bitplanes,a2
 
 
@@ -177,6 +178,8 @@ mainloop:
     move.w  #5,d4
 
     bsr.w   BlitBob
+
+    bsr.w   DrawMonsters
 
     bsr.w   wframe
 
@@ -196,10 +199,59 @@ nonsposta:
 
 ; *************** INIZIO ROUTINE UTILITY
 
-ShowMonsters:
+DrawMonsters:
     
+    lea     Monsters,a3
+    clr.l   d0
+    clr.l   d1
+    clr.l   d2
+    clr.l   d3
+    clr.l   d4
+    clr.l   d5
+    clr.l   d6
 
 
+.loopmonsters:
+    move.w  (a3)+,d0
+    cmpi.w  #$ffff,d0      ; E' fine lista?
+    beq.s   .fineloopmonsters
+
+    move.w  (a3)+,d1        ; Copio posizione Y
+    move.w  (a3)+,d5        ; Copio il tipo
+    move.w  (a3)+,d6        ; Vivo o morto?
+
+    cmp.w   #1,d6           ; E' vivo?
+    bne.s   .nonvivo
+
+    cmp.w   #0,d5           ; E' il mostro verde?
+    bne.s   .nogreen
+    lea     GreenMonster,a0
+    lea     GreenMonsterMask,a1
+    bra.s   .found
+.nogreen
+    cmp.w   #1,d5           ; E' il mostro rosso?
+    bne.s   .nored
+    lea     RedMonster,a0
+    lea     RedMonsterMask,a1
+    bra.s   .found
+.nored
+    lea     YellowMonster,a0        ; Allora è quello giallo
+    lea     YellowMonsterMask,a1
+
+.found
+    
+    move.w  #2,d2           ; Dimensione in word
+    move.w  #16,d3          ; Altezza
+    move.w  #5,d4           ; Numero bitplane
+
+    bsr.w   BlitBob
+
+.nonvivo
+
+    bra.s   .loopmonsters
+
+.fineloopmonsters:
+    rts
 
 
 
@@ -395,12 +447,12 @@ bplane_modulo = (320/16)*4
 
 
 ; Palette
-    dc.w	$0180,$0001,$0182,$0035,$0184,$0046,$0186,$0467
+	dc.w	$0180,$0001,$0182,$0035,$0184,$0046,$0186,$0467
 	dc.w	$0188,$0068,$018a,$0578,$018c,$018a,$018e,$01ac
 	dc.w	$0190,$02df,$0192,$068a,$0194,$06ac,$0196,$05ef
 	dc.w	$0198,$08ab,$019a,$09bc,$019c,$0ade,$019e,$0dff
 	dc.w	$01a0,$0d00,$01a2,$0800,$01a4,$0e80,$01a6,$0ff0
-	dc.w	$01a8,$0333,$01aa,$0444,$01ac,$0555,$01ae,$0666
+	dc.w	$01a8,$0990,$01aa,$0444,$01ac,$0555,$01ae,$0666
 	dc.w	$01b0,$0777,$01b2,$0888,$01b4,$0090,$01b6,$00d0
 	dc.w	$01b8,$0333,$01ba,$0777,$01bc,$0bbb,$01be,$0fff
 
@@ -481,7 +533,8 @@ ShipBulletMask:
 
 BobPosX:
     dc.w    0
-
+    dc.w    0
+    dc.w    0
 ; Posizionamento dei singoli mostri
 ; Struttura dati:
 ; X.w       Posizione X
@@ -491,22 +544,24 @@ BobPosX:
 
 ; Tipi:
 ; 0 = Green monster
+; 1 = Red monster
+; 2 = Yellow monster
 ; Se X.w è FFFF => Fine lista.
 Monsters:
     dc.w    16
-    dc.b    16
-    dc.b    0
-    dc.b    1
+    dc.w    16
+    dc.w    0
+    dc.w    1
 
-    dc.b    16*3
-    dc.b    16
-    dc.b    1
-    dc.b    1
+    dc.w    16*3
+    dc.w    16
+    dc.w    1
+    dc.w    1
 
-    dc.b    16*5
-    dc.b    16
-    dc.b    2
-    dc.b    1
+    dc.w    16*5
+    dc.w    16
+    dc.w    2
+    dc.w    1
     dc.w    $ffff
 
 
