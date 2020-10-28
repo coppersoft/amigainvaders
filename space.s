@@ -244,6 +244,8 @@ DrawMonsters:
     move.w  #16,d3          ; Altezza
     move.w  #5,d4           ; Numero bitplane
 
+    lea     Bitplanes,a2
+
     bsr.w   BlitBob
 
 .nonvivo
@@ -533,8 +535,7 @@ ShipBulletMask:
 
 BobPosX:
     dc.w    0
-    dc.w    0
-    dc.w    0
+
 ; Posizionamento dei singoli mostri
 ; Struttura dati:
 ; X.w       Posizione X
@@ -549,17 +550,17 @@ BobPosX:
 ; Se X.w è FFFF => Fine lista.
 Monsters:
     dc.w    16
-    dc.w    16
+    dc.w    32
     dc.w    0
     dc.w    1
 
-    dc.w    16*3
-    dc.w    16
+    dc.w    48
+    dc.w    32
     dc.w    1
     dc.w    1
 
-    dc.w    16*5
-    dc.w    16
+    dc.w    76
+    dc.w    32
     dc.w    2
     dc.w    1
     dc.w    $ffff
