@@ -196,6 +196,12 @@ nonsposta:
 
 ; *************** INIZIO ROUTINE UTILITY
 
+ShowMonsters:
+    
+
+
+
+
 
 ; Routine per il waitraster 
 ; Aspetta la rasterline in d0.w , modifica d0-d2/a0
@@ -441,14 +447,60 @@ Bitplanes:
 Background:
     incbin "Back.raw"
 
+
 GreenMonster:
     incbin "GreenMon.raw"
-
-GreenMonsterMask
+GreenMonsterMask:
     incbin "GreenMonMask.raw"
+RedMonster:
+    incbin "RedMon.raw"
+RedMonsterMask:
+    incbin "RedMonMask.raw"
+YellowMonster:
+    incbin "YellowMon.raw"
+YellowMonsterMask:
+    incbin "YellowMonMask.raw"
+Ship:
+    incbin "Ship.raw"
+ShipMask:
+    incbin "ShipMask.raw"
+ShipBullet:
+    incbin "ShipBullet.raw"
+ShipBulletMask:
+    incbin "ShipBulletMask.raw"
+
 
 BobPosX:
     dc.w    0
+
+; Posizionamento dei singoli mostri
+; Struttura dati:
+; X.w       Posizione X
+; Y.b       Posizione Y
+; Tipo.b    Tipo di mostro
+; Vivo.b    Vivo = 1, Morto = 0
+
+; Tipi:
+; 0 = Green monster
+; Se X.w è FFFF => Fine lista.
+Monsters:
+    dc.w    16
+    dc.b    16
+    dc.b    0
+    dc.b    1
+
+    dc.b    16*3
+    dc.b    16
+    dc.b    1
+    dc.b    1
+
+    dc.b    16*5
+    dc.b    16
+    dc.b    2
+    dc.b    1
+    dc.w    $ffff
+
+
 
 Spr0:
 	dc.w $2c80,$3c00	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
