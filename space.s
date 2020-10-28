@@ -207,6 +207,8 @@ ShowMonsters:
 ; Aspetta la rasterline in d0.w , modifica d0-d2/a0
 
 WaitRaster:
+    movem.l d0-d2/a0,-(SP)
+
     move.l  #$1ff00,d2
     lsl.l   #8,d0
     and.l   d2,d0
@@ -216,6 +218,8 @@ WaitRaster:
     and.l   d2,d1
     cmp.l   d1,d0
     bne.s   .wr
+
+    movem.l (SP)+,d0-d2/a0
     rts
 
 
@@ -230,6 +234,7 @@ WaitRaster:
 ; d4    Numero bitplane
 
 BlitBob:
+    movem.l d5-d7,-(SP)
 
     tst     $dff002
 .waitblit
@@ -289,6 +294,8 @@ BlitBob:
     add.w   d2,d3
     move.w  d3,$dff058                   ; Setto le dimensioni e lancio la blittata
 
+    movem.l (SP)+,d5-d7
+
     rts
 
 
@@ -297,6 +304,8 @@ BlitBob:
 ; Sto copiando bellamente un'intera schermata a ogni frame, non so se il
 ; blitter ce la fa al 50mo di secondo. Eventualmente inventarsi qualcos'altro.
 CopiaSfondo:
+
+    movem.l d0/d1/a0/a1,-(SP)
 
     lea     Background+(26*40*5),a0
     lea     Bitplanes+(26*40*5),a1
@@ -310,7 +319,7 @@ CopiaSfondo:
     move.w  #5,d1
     bsr.w   SimpleBlit
 
-
+    movem.l (SP)+,d0/d1/a0/a1
     rts
 
 ;   a0 = sorgente
