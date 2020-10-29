@@ -150,7 +150,7 @@ PuntaBP:
 
     move.l  #Copper,$dff080     ; http://amiga-dev.wikidot.com/hardware:cop1lch  (Copper pointer register) E' un long word move perché il registro è una long word
 
-
+; TODO: Eventualmente fare una copia generale, ma è solo un dettaglio
 
     lea     Background,a0
     lea     Bitplanes,a1
@@ -158,11 +158,30 @@ PuntaBP:
     move.w  #26,d1
     bsr.w   SimpleBlit
 
-mainloop:
-
     bsr.w   CopiaSfondo
 
-; Muovo il bob
+mainloop:
+
+
+
+    bsr.w   MoveTestBob
+
+    bsr.w   DrawMonsters
+
+    bsr.w   wframe
+
+
+
+    btst    #6,$bfe001
+    bne     mainloop
+
+    rts
+; ===== FINE CODICE 
+
+
+; *************** INIZIO ROUTINE UTILITY
+
+MoveTestBob:
 
     lea     GreenMonster,a0
     lea     GreenMonsterMask,a1
@@ -179,25 +198,14 @@ mainloop:
 
     bsr.w   BlitBob
 
-    bsr.w   DrawMonsters
-
-    bsr.w   wframe
-
     btst    #10,$dff016 ; test RIGHT mouse click
     bne     nonsposta
 
     addi.w  #1,BobPosX
-	
+	rts
+
 nonsposta:
 
-    btst    #6,$bfe001
-    bne     mainloop
-
-    rts
-; ===== FINE CODICE 
-
-
-; *************** INIZIO ROUTINE UTILITY
 
 DrawMonsters:
     
