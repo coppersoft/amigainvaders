@@ -202,10 +202,10 @@ MoveTestBob:
     bne     nonsposta
 
     addi.w  #1,BobPosX
-	rts
+	
 
 nonsposta:
-
+    rts
 
 DrawMonsters:
     
@@ -700,6 +700,31 @@ Monsters:
     dc.w    1
 
     dc.w    $ffff
+
+; 1 : destra
+; 0 : sinistra
+MonstersDirection:
+    dc.w    1
+
+; Struttura dati per il salvataggio del fondale prima del movimento dei bob
+; Nel caso dei mostri, siccome sono tutti sulla stessa altezza, semplifico facendo
+; salvataggio delle tre strisce
+
+; Offset.l      : offset della word in alto a sinistra del blocco
+; Width.w       : larghezza in word
+; Height.w      : altezza (numero righe)
+; Bitplane.w    : numero bitplane
+BackupBkgMonsters:
+    dc.l    0
+    dc.w    0
+    dc.w    0
+    dc.w    0
+
+BackupBkgShipBullet:
+    dc.l    0
+    dc.w    0
+    dc.w    0
+    dc.w    0
 
 
 
