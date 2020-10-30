@@ -166,8 +166,10 @@ mainloop:
 
     bsr.w   MoveTestBob
 
-    move.w  #0,d0
+    move.w  #1,d0
     bsr.w   MoveAllMonstersHorizontally
+
+    bsr.w   MoveAllMonstersDown
 
     bsr.w   DrawMonsters
 
@@ -307,6 +309,26 @@ MoveAllMonstersHorizontally:
 
 .fineloopmonsters_h
     rts
+
+MoveAllMonstersDown:
+
+    lea     Monsters,a0
+.loopmonsters_d
+    move.w  (a0)+,d1
+    cmpi.w  #$ffff,d1      ; E' fine lista?
+    beq.s   .fineloopmonsters_d
+
+    add.w   #1,(a0)
+    add.w   #6,a0
+
+    bra.s   .loopmonsters_d
+
+.fineloopmonsters_d
+    rts
+
+
+
+
 
 ; Routine per il waitraster 
 ; Aspetta la rasterline in d0.w , modifica d0-d2/a0
