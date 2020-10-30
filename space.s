@@ -274,7 +274,7 @@ UpdateMonstersPositions:
     move.w  MonstersDirection,d0
     move.w  MonstersDirectionCounter,d1
 
-    cmpi.w  #16,d1
+    cmpi.w  #32,d1
     bne.s   .noninverte
 
     tst.w   d0
@@ -637,141 +637,141 @@ Monsters:
 
 ; Fila mostri verdi
 
-    dc.w    16
+    dc.w    8
     dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    16*3
+    dc.w    8+(16*2)
     dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    16*5
+    dc.w    8+(16*4)
     dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    16*7
+    dc.w    8+(16*6)
     dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    16*9
+    dc.w    8+(16*8)
     dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    16*11
+    dc.w    8+(16*10)
     dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    16*13
+    dc.w    8+(16*12)
     dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    16*15
+    dc.w    8+(16*14)
     dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    16*17
+    dc.w    8+(16*16)
     dc.w    40
     dc.w    0
     dc.w    1
 
 ; Fila mostri rossi
 
-    dc.w    16
+    dc.w    8
     dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    16*3
+    dc.w    8+(16*2)
     dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    16*5
+    dc.w    8+(16*4)
     dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    16*7
+    dc.w    8+(16*6)
     dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    16*9
+    dc.w    8+(16*8)
     dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    16*11
+    dc.w    8+(16*10)
     dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    16*13
+    dc.w    8+(16*12)
     dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    16*15
+    dc.w    8+(16*14)
     dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    16*17
+    dc.w    8+(16*16)
     dc.w    70
     dc.w    1
     dc.w    1
 
 ; Fila mostri gialli
 
-    dc.w    16
+    dc.w    8
     dc.w    100
     dc.w    2
     dc.w    1
 
-    dc.w    16*3
+    dc.w    8+(16*2)
     dc.w    100
     dc.w    2
     dc.w    1
 
-    dc.w    16*5
+    dc.w    8+(16*4)
     dc.w    100
     dc.w    2
     dc.w    1
 
-    dc.w    16*7
+    dc.w    8+(16*6)
     dc.w    100
     dc.w    2
     dc.w    1
 
-    dc.w    16*9
+    dc.w    8+(16*8)
     dc.w    100
     dc.w    2
     dc.w    1
 
-    dc.w    16*11
+    dc.w    8+(16*10)
     dc.w    100
     dc.w    2
     dc.w    1
 
-    dc.w    16*13
+    dc.w    8+(16*12)
     dc.w    100
     dc.w    2
     dc.w    1
 
-    dc.w    16*15
+    dc.w    8+(16*14)
     dc.w    100
     dc.w    2
     dc.w    1
 
-    dc.w    16*17
+    dc.w    8+(16*16)
     dc.w    100
     dc.w    2
     dc.w    1
