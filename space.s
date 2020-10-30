@@ -166,6 +166,9 @@ mainloop:
 
     bsr.w   MoveTestBob
 
+    move.w  #0,d0
+    bsr.w   MoveAllMonstersHorizontally
+
     bsr.w   DrawMonsters
 
     bsr.w   wframe
@@ -264,6 +267,46 @@ DrawMonsters:
     rts
 
 
+UpdateMonstersPositions:
+    
+;    move.w  Monsters,d0
+;    move.w  MonstersDirection,d1
+
+;    cmpi.w  #1,d1
+;    bne.s   .nondestra
+
+; E' a destra
+
+;    cmpi.w  #32,d0
+;    bne.s   
+
+
+;.nondestra
+
+; d0 = 1 right, 0 left
+MoveAllMonstersHorizontally:
+
+    lea     Monsters,a0
+.loopmonsters_h
+    move.w  (a0),d1
+    cmpi.w  #$ffff,d1      ; E' fine lista?
+    beq.s   .fineloopmonsters_h
+
+    tst.w   d0             ; E' a sinistra?
+    beq.s   .sinistra
+    addi.w  #1,d1
+    bra.s   .nonsinistra
+.sinistra
+    subi.w  #1,d1
+.nonsinistra
+    move.w  d1,(a0)
+
+; Stranissimo, il vasm non riconosce addi.w sui registri indirizzo... Mah...
+    add.w  #8,a0           ; Prossimo mostro
+    bra.s   .loopmonsters_h
+
+.fineloopmonsters_h
+    rts
 
 ; Routine per il waitraster 
 ; Aspetta la rasterline in d0.w , modifica d0-d2/a0
