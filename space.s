@@ -167,9 +167,8 @@ mainloop:
     bsr.w   MoveTestBob
 
     move.w  #1,d0
-    bsr.w   MoveAllMonstersHorizontally
-
-    bsr.w   MoveAllMonstersDown
+    
+    bsr.w   UpdateMonstersPositions
 
     bsr.w   DrawMonsters
 
@@ -268,22 +267,33 @@ DrawMonsters:
 .fineloopmonsters:
     rts
 
+; -----------------------------------------
 
 UpdateMonstersPositions:
     
-;    move.w  Monsters,d0
-;    move.w  MonstersDirection,d1
+    move.w  MonstersDirection,d0
+    move.w  MonstersDirectionCounter,d1
 
-;    cmpi.w  #1,d1
-;    bne.s   .nondestra
+    cmpi.w  #16,d1
+    bne.s   .noninverte
 
-; E' a destra
+    tst.w   d0
+    bne.s   .destra             ; Se non è 0 allora andavano a destra 
+    move.w  #1,MonstersDirection ; Se è 0 andavano a sinistra e li faccio andare a destra
+    bra.s   .sinistra
+.destra
+    move.w  #0,MonstersDirection ; Li faccio andare a sinistra
+.sinistra
+    move.w  #0,MonstersDirectionCounter  ; In ogni caso azzero il contatore
+    bsr.w   MoveAllMonstersDown         ; E li sposto tutti in basso
+    rts
 
-;    cmpi.w  #32,d0
-;    bne.s   
+.noninverte
+    bsr.w   MoveAllMonstersHorizontally
+    add.w   #1,MonstersDirectionCounter
+    rts
 
-
-;.nondestra
+; ---------------------------------------
 
 ; d0 = 1 right, 0 left
 MoveAllMonstersHorizontally:
@@ -309,6 +319,8 @@ MoveAllMonstersHorizontally:
 
 .fineloopmonsters_h
     rts
+
+; -------------------------
 
 MoveAllMonstersDown:
 
@@ -770,6 +782,9 @@ Monsters:
 ; 0 : sinistra
 MonstersDirection:
     dc.w    1
+
+MonstersDirectionCounter:
+    dc.w    0
 
 ; Struttura dati per il salvataggio del fondale prima del movimento dei bob
 ; Nel caso dei mostri, siccome sono tutti sulla stessa altezza, semplifico facendo
