@@ -174,6 +174,8 @@ mainloop:
 
     bsr.w   DrawMonsters
 
+    bsr.w   DrawShip
+
     bsr.w   wframe
 
 
@@ -340,7 +342,23 @@ MoveAllMonstersDown:
 .fineloopmonsters_d
     rts
 
+; --------
 
+DrawShip:
+
+    lea     Ship,a0
+    lea     ShipMask,a1
+    lea     Bitplanes,a2
+
+    move.w  ShipBobX,d0
+    move.w  #240,d1
+    move.w  #2,d2
+    move.w  #16,d3
+    move.w  #5,d4
+
+    bsr.w   BlitBob
+
+    rts
 
 
 
@@ -863,6 +881,10 @@ BackupBkgShipBullet:
     dc.w    0
     dc.w    0
     dc.w    0
+
+ShipBobX:
+    dc.w    120
+
 
 
 
