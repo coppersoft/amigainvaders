@@ -169,11 +169,10 @@ mainloop:
 ;    move.w  #1,d0
 
     bsr.w   DrawMonstersBackground
-
     bsr.w   UpdateMonstersPositions
-
     bsr.w   DrawMonsters
 
+    bsr.w   UpdateShipPosition
     bsr.w   DrawShip
 
     bsr.w   wframe
@@ -360,6 +359,22 @@ DrawShip:
 
     rts
 
+; --------
+
+UpdateShipPosition:
+
+    ; JOY1DAT http://amiga-dev.wikidot.com/hardware:joy0dat
+    move.w  $dff00c,d3
+    btst.l  #1,d3       ; Bit 1 (destra) è azzerato?
+    beq.s   .nodestra   ; Se si salto lo spostamento a destra
+    addq.w  #1,ShipBobX
+    rts
+.nodestra
+    btst.l  #9,d3       ; Il bit 9 (sinistra) è azzerato?
+    beq.s   .exit       ; Se si esce
+    subq.w  #1,ShipBobX
+.exit
+    rts
 
 
 ; Routine per il waitraster 
