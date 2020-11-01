@@ -152,22 +152,24 @@ PuntaBP:
 
 ; TODO: Eventualmente fare una copia generale, ma è solo un dettaglio
 
-    lea     Background,a0
-    lea     Bitplanes,a1
-    move.w  #5,d0
-    move.w  #26,d1
-    bsr.w   SimpleBlit
+     lea     Background,a0
+     lea     Bitplanes,a1
+     move.w  #5,d0
+     move.w  #26,d1
+     bsr.w   SimpleBlit
 
-    bsr.w   CopiaSfondo
+     bsr.w   CopiaSfondo
 
 mainloop:
 
 
 
-    bsr.w   MoveTestBob
+;    bsr.w   MoveTestBob
 
-    move.w  #1,d0
-    
+;    move.w  #1,d0
+
+    bsr.w   DrawMonstersBackground
+
     bsr.w   UpdateMonstersPositions
 
     bsr.w   DrawMonsters
@@ -437,7 +439,63 @@ BlitBob:
 
     rts
 
+; -------------------------------------
+; primo test con tutti i calcoli, anche se semplificati
 
+DrawMonstersBackground:
+
+    lea     GreenRow,a0
+    bsr.w   .drawbackground
+
+    lea     RedRow,a0
+    bsr.w   .drawbackground
+
+    lea     YellowRow,a0
+    bsr.w   .drawbackground
+    
+    rts
+
+.drawbackground
+    tst     $dff002
+.waitblit
+    btst    #14-8,$dff002
+    bne.s   .waitblit           ; Aspetto il blitter che finisce
+
+    clr.l   d0
+    clr.l   d1
+
+    
+    lea     Background,a1
+    lea     Bitplanes,a2
+    move.w  (a0)+,d0        ; x
+    move.w  (a0),d1         ; y
+
+    mulu.w  #200,d1         ; Giù per 5 bitplane
+
+    lsr.l   #4,d0           ; Divido per 16 prendendo le word di cui spostarmi a destra
+    lsl.l   #1,d0           ; Rimoltiplico per due per ottenere i byte
+
+    add.l   d0,d1           ; Aggiungo lo scostamento in byte
+    add.l   d1,a1           ; Posiziono sorgente e destinazione sullo stesso offset
+    add.l   d1,a2
+
+    ; 0 = shift nullo
+    ; 9 = 1001: abilito solo i canali A e D
+    ; f0 = minterm, copia semplice
+    move.l  #$09f00000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
+
+    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
+
+    move.l  a1,$dff050    ; Setto la sorgente su BLTAPTH
+    move.l  a2,$dff054    ; Setto la destinazione su BLTDPTH
+
+    move.w  #4,$dff064    ; Modulo per la sorgente BLTAMOD
+    move.w  #4,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
+
+    move.w  #((16*5)*64)+18,$dff058
+
+    rts
+; -------------------------------------
 
 ; TODO: ATTENZIONE QUA!
 ; Sto copiando bellamente un'intera schermata a ogni frame, non so se il
@@ -485,7 +543,7 @@ SimpleBlit:
     
     mulu.w  d1,d0         ; Moltiplico il numero di righe da copiare per i bitplane
     lsl.w   #6,d0
-    addi.w  #20,d0
+    addi.w  #20,d0        ; 320 pixel = 20 word in bltsize
 
     move.w  d0,$dff058  ; Dimensioni e blittata
     rts
@@ -495,10 +553,10 @@ SimpleBlit:
 wframe:
 	btst #0,$dff005
 	bne.b wframe
-	cmp.b #$2a,$dff006
+	cmp.b #$c1,$dff006      ; Spostato da 2a a c1 per dare aria al blitter
 	bne.b wframe
 wframe2:
-	cmp.b #$2a,$dff006
+	cmp.b #$c1,$dff006
 	beq.b wframe2
     rts
 ; *************** FINE ROUTINE UTILITY
@@ -636,7 +694,7 @@ BobPosX:
 Monsters:
 
 ; Fila mostri verdi
-
+GreenRow:
     dc.w    8
     dc.w    40
     dc.w    0
@@ -683,7 +741,7 @@ Monsters:
     dc.w    1
 
 ; Fila mostri rossi
-
+RedRow:
     dc.w    8
     dc.w    70
     dc.w    1
@@ -730,7 +788,7 @@ Monsters:
     dc.w    1
 
 ; Fila mostri gialli
-
+YellowRow:
     dc.w    8
     dc.w    100
     dc.w    2
