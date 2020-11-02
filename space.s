@@ -145,13 +145,13 @@ PuntaBP:
 
     ; Setto lo spritepointer (dff120) nello stesso modo fatto per i bitplane
 
-;    lea     SpritePointers,a0
-;    move.l  #Spr0,d0
+    lea     SpritePointers,a0
+    move.l  #ShipBulletSprite,d0
 
-;    move.w  d0,6(a0)
-;    swap    d0
-;    move.w  d0,2(a0)
-;    swap    d0
+    move.w  d0,6(a0)
+    swap    d0
+    move.w  d0,2(a0)
+    swap    d0
 
 
     ; Setto la copperlist, ovviamente DOPO aver disabilitato gli interrupt se no il SO potrebbe interferire
@@ -168,6 +168,12 @@ PuntaBP:
 
      bsr.w   CopiaSfondo
 
+    lea     ShipBulletSprite,a1
+    move.w  #240,d0
+    move.w  #300,d1
+    move.w  #7,d2
+    bsr.w   PointSprite
+
 mainloop:
 
 
@@ -179,7 +185,7 @@ mainloop:
     bsr.w   UpdateMonstersPositions
     bsr.w   DrawMonsters
 
-; Gestione Ship
+; Gestione Ship, questo può stare ovunque.
 
     bsr.w   CleanShipBackground
     bsr.w   UpdateShipPosition
@@ -196,9 +202,17 @@ mainloop:
 
     bsr.w   CheckCollisions
 
+; Devo ripetere per forza il controllo per il frame immediatamente successivo
+; a una collisione
+    tst.w   ShipBulletActive
+    beq.s   .nobulletactive
     bsr.w   DrawShipBullet
 
+    
 .nobulletactive
+
+
+    
 
 ;    bsr.w   WaitVBL
     bsr.w   wframe
@@ -497,10 +511,6 @@ UpdateShipBulletPosition:
 
     bsr.w   DisableShipBullet
 
-    move.w  #0,ShipBulletActive
-    move.w  #0,ShipBulletY
-    move.w  #0,ShipBulletX
-
 .nonmargine
     subi.w  #ShipBulletSpeed,ShipBulletY
     rts
@@ -522,7 +532,8 @@ DrawShipBullet:
     lea     ShipBullet,a0
     lea     ShipBulletMask,a1
     lea     Bitplanes,a2
-    lea     Background,a3
+;    lea     Background,a3
+    lea     Bitplanes,a3
 
     move.w  ShipBulletX,d0
     move.w  ShipBulletY,d1
@@ -788,6 +799,42 @@ SimpleBlit:
 
     move.w  d0,$dff058  ; Dimensioni e blittata
     rts
+
+; a1    Indirizzo dello sprite
+; d0    Posizione verticale
+; d1    Posizione orizzontale
+; d2    Altezza
+PointSprite:
+    add.w   #$2c,d0         ; Aggiungi inizio schermo (vedi $dff08e DIWSTRT)
+    move.b  d0,(a1)         ; Copio il byte in VSTART
+    btst.l  #8,d0           ; Il bit 8 della posizione è settato?
+    beq.s   .novstartset    ; Se no non lo setto
+    bset.b  #2,3(a1)        ; Altrimenti setto il bit 2 di SPRCTL
+    bra.s   .tovstop
+.novstartset
+    bclr.b  #2,3(a1)        ; Se non lo dovevo settare allora lo azzero
+.tovstop
+    add.w   d2,d0           ; Aggiunto l'altezza dello sprite
+    move.b  d0,2(a1)        ; E la metto in VSTOP
+    btst.l  #8,d0           ; Anche per VSTOP, stesso controllo di sopra
+    beq.s   .novstopset
+    bset.b  #1,3(a1)        ; Setto il bit 8 di VSTOP ovvero il bit 1 di SPRCTL
+    bra.s   .vstopfin
+.novstopset
+    bclr.b  #1,3(a1)        ; Se non lo dovevo settare allora lo azzero
+.vstopfin
+    add.w   #128,d1
+    btst    #0,d1           ; Il bit basso della coordinata è zero?
+    beq.s   .lowbitzero
+    bset    #0,3(a1)        ; Se non lo è setto il bit 0 di SPRCTL, ovvero il bit basso di HSTART
+    bra.s   .placecoords
+.lowbitzero
+    bclr    #0,3(a1)        ; Se lo è comunque lo azzero, come prima
+.placecoords
+    lsr     #1,d1           ; Tolgo il bit basso di HSTART
+    move.b  d1,1(a1)        ; E lo setto in HSTART
+    rts
+
 
 
 ; Versione infamia
@@ -1126,24 +1173,31 @@ ShipBulletX:
 ShipBulletY:
     dc.w    0
 
-Spr0:
-	dc.w $2c80,$3c00	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
-	dc.w %0000011111000000,%0000000000000000
-	dc.w %0001111111110000,%0000000000000000
-	dc.w %0011111111111000,%0000000000000000
-	dc.w %0111111111111100,%0000000000000000
-	dc.w %0110011111001100,%0001100000110000
-	dc.w %1110011111001110,%0001100000110000
-	dc.w %1111111111111110,%0000000000000000
-	dc.w %1111111111111110,%0000000000000000
-	dc.w %1111111111111110,%0010000000001000
-	dc.w %1111111111111110,%0001100000110000
-	dc.w %0111111111111100,%0000011111000000
-	dc.w %0111111111111100,%0000000000000000
-	dc.w %0011111111111000,%0000000000000000
-	dc.w %0001111111110000,%0000000000000000
-	dc.w %0000011111000000,%0000000000000000
-	dc.w %0000000000000000,%0000000000000000
+ShipBulletSprite:
+	dc.w $0,$0	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
+	dc.w	$300c,$300c
+	dc.w	$781e,$781e
+	dc.w	$4812,$781e
+	dc.w	$0000,$781e
+	dc.w	$0000,$300c
+	dc.w	$300c,$0000
+	dc.w	$300c,$0000
+;	dc.w %0000011111000000,%0000000000000000
+;	dc.w %0001111111110000,%0000000000000000
+;	dc.w %0011111111111000,%0000000000000000
+;	dc.w %0111111111111100,%0000000000000000
+;	dc.w %0110011111001100,%0001100000110000
+;	dc.w %1110011111001110,%0001100000110000
+;	dc.w %1111111111111110,%0000000000000000
+;	dc.w %1111111111111110,%0000000000000000
+;	dc.w %1111111111111110,%0010000000001000
+;	dc.w %1111111111111110,%0001100000110000
+;	dc.w %0111111111111100,%0000011111000000
+;	dc.w %0111111111111100,%0000000000000000
+;	dc.w %0011111111111000,%0000000000000000
+;	dc.w %0001111111110000,%0000000000000000
+;	dc.w %0000011111000000,%0000000000000000
+;	dc.w %0000000000000000,%0000000000000000
 	dc.w 0,0
 
 NullSpr:
