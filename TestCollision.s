@@ -15,8 +15,8 @@
 	move.w	#100,d0		; srcX
 	move.w	#100,d1		; srxY
 
-	move.w	#100,d2		; dstX
-	move.w	#100,d3		; dstY
+	move.w	#118,d2		; dstX
+	move.w	#110,d3		; dstY
 
 	move.w	#(16/2)+(16/2),d4
 	move.w	#(16/2)+(16/2),d5
@@ -29,7 +29,7 @@ Collision:
 	neg.w	d0
 .nondx
 	cmp.w	d4,d0
-	bhi.s	.nohitx
+	bhi.s	.nohit
 
 	sub.w	d3,d1
 	bpl.s	.nondy
@@ -37,7 +37,12 @@ Collision:
 
 .nondy
 	cmp.w	d5,d1
-.nohitx
+	bpl.s	.nohit
+; Collisione!!!
+	move.w	#100,d7
+	
+.nohit
+
 	rts
 
 
