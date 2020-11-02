@@ -105,8 +105,6 @@ START:
                                     ; Il bit 10 è a 1 => Blitter DMA priority, evita che la CPU rubi dei cicli mentre il blitter gira)
                                     ; Il bit 15 è a 1 => SET/CLR , stabilisce se i bit a 1 settano o cancellano
 
-    ;move.w  #$87e0,$dff096          ; Come sopra ma con gli sprite attivi
-
     move.w  #$87e0,$dff096      ; DMACON (write) 1000011111100000
                                 ; 15 - Set Clear bit a 1 => i bit a 1 settano
                                 ; 10 - BlitPRI a 1
@@ -116,6 +114,11 @@ START:
                                 ; 6  - BLTEN  (Blitter DMA enable)
                                 ; 5  - SPREN  (Sprite DMA enable)
                                 
+; 1000011111000000 = 87C0   => Senza sprite ma con blipri a 1
+; 1000001111000000 = 83C0   => Senza sprite e con blitpri a 0
+
+    ;move.w  #$83C0,$dff096
+
 
 
     ;move.w	#0,$dff1fc		; Disattiva l'AGA
