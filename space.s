@@ -458,6 +458,8 @@ UpdateShipBulletPosition:
     cmpi.w  #ShipBulletTopYMargin,d0
     bne.s   .nonmargine
 
+    bsr.w   DrawShipBulletBackground
+
     move.w  #0,ShipBulletActive
     move.w  #0,ShipBulletY
     move.w  #0,ShipBulletX
@@ -520,10 +522,10 @@ DrawShipBulletBackground:
     move.l  a0,$dff050    ; Setto la sorgente su BLTAPTH
     move.l  a1,$dff054    ; Setto la destinazione su BLTDPTH
 
-    move.w  #316,$dff064    ; Modulo per la sorgente BLTAMOD
-    move.w  #316,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
+    move.w  #36,$dff064    ; Modulo per la sorgente BLTAMOD
+    move.w  #36,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
 
-    move.w  #((7*5)*64)+2,$dff058
+    move.w  #((9*5)*64)+2,$dff058
 
     rts
 
@@ -755,10 +757,10 @@ WaitVBL:
 wframe:
 	btst #0,$dff005
 	bne.b wframe
-	cmp.b #$c1,$dff006      ; Spostato da 2a a c1 per dare aria al blitter
+	cmp.b #$2a,$dff006      ; Spostato da 2a a c1 per dare aria al blitter
 	bne.b wframe
 wframe2:
-	cmp.b #$c1,$dff006
+	cmp.b #$2a,$dff006
 	beq.b wframe2
     rts
 ; *************** FINE ROUTINE UTILITY
