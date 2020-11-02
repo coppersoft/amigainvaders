@@ -168,11 +168,7 @@ PuntaBP:
 
      bsr.w   CopiaSfondo
 
-    lea     ShipBulletSprite,a1
-    move.w  #240,d0
-    move.w  #300,d1
-    move.w  #7,d2
-    bsr.w   PointSprite
+
 
 mainloop:
 
@@ -519,28 +515,22 @@ UpdateShipBulletPosition:
 
 DisableShipBullet:
 
-    bsr.w   DrawShipBulletBackground
-
     move.w  #0,ShipBulletActive
     move.w  #0,ShipBulletY
     move.w  #0,ShipBulletX
+
+    move.w  #0,ShipBulletSprite
 
     rts
 ; ------------------
 
 DrawShipBullet:
-    lea     ShipBullet,a0
-    lea     ShipBulletMask,a1
-    lea     Bitplanes,a2
-;    lea     Background,a3
-    lea     Bitplanes,a3
+    lea     ShipBulletSprite,a1
+    move.w  ShipBulletY,d0
+    move.w  ShipBulletX,d1
+    move.w  #7,d2
 
-    move.w  ShipBulletX,d0
-    move.w  ShipBulletY,d1
-    move.w  #2,d2
-    move.w  #9*5,d3
-;    move.w  #5,d4
-    bsr.w   BlitBob
+    bsr.w   PointSprite
 
     rts
 
