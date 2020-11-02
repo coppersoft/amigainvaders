@@ -238,7 +238,7 @@ nonsposta:
 
 DrawMonsters:
     
-    lea     Monsters,a3
+    lea     Monsters,a4
     clr.l   d0
     clr.l   d1
     clr.l   d2
@@ -249,13 +249,13 @@ DrawMonsters:
 
 
 .loopmonsters:
-    move.w  (a3)+,d0
+    move.w  (a4)+,d0
     cmpi.w  #$ffff,d0      ; E' fine lista?
     beq.s   .fineloopmonsters
 
-    move.w  (a3)+,d1        ; Copio posizione Y
-    move.w  (a3)+,d5        ; Copio il tipo
-    move.w  (a3)+,d6        ; Vivo o morto?
+    move.w  (a4)+,d1        ; Copio posizione Y
+    move.w  (a4)+,d5        ; Copio il tipo
+    move.w  (a4)+,d6        ; Vivo o morto?
 
     cmp.w   #1,d6           ; E' vivo?
     bne.s   .nonvivo
@@ -282,6 +282,7 @@ DrawMonsters:
 ;    move.w  #5,d4           ; Numero bitplane
 
     lea     Bitplanes,a2
+    lea     Background,a3
 
     bsr.w   BlitBob
 
@@ -553,6 +554,7 @@ WaitRaster:
 ; a0    Indirizzo Bob
 ; a1    Indirizzo Maschera
 ; a2    Indirizzo bitplane (interleaved)
+; a3    Background
 
 ; d0    Posizione X
 ; d1    Posizione Y
@@ -595,9 +597,7 @@ BlitBob:
 ;    mulu.w  d4,d1               ; Per il numero dei bitplane
     add.l   d0,d1               ; Gli aggiungo i byte di scostamento a destra della posizione X
     add.l   d1,a2               ; Offset con l'inizio dei bitplane
-
-    lea     Background,a3
-    add.l   d1,a3
+    add.l   d1,a3               ; In destinazione e background
 
     move.l  a3,$dff048          ; Setto lo sfondo su BLTCPTH
     move.l  a2,$dff054          ; Setto la destinazione su BLTDPTH
