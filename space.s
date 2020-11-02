@@ -259,7 +259,8 @@ CheckCollisions:
     bpl.s	.nocoll
 ; Collisione!!!
 
-    move.w  #$0fff,$dff180
+    add.w   #2,ShipBulletY
+    bsr.w   DisableShipBullet
 
 ; Settare il mostro in stato esplosivo
 
@@ -494,7 +495,7 @@ UpdateShipBulletPosition:
     cmpi.w  #ShipBulletTopYMargin,d0
     bne.s   .nonmargine
 
-    bsr.w   DrawShipBulletBackground
+    bsr.w   DisableShipBullet
 
     move.w  #0,ShipBulletActive
     move.w  #0,ShipBulletY
@@ -504,7 +505,17 @@ UpdateShipBulletPosition:
     subi.w  #ShipBulletSpeed,ShipBulletY
     rts
 
+; ------------------
 
+DisableShipBullet:
+
+    bsr.w   DrawShipBulletBackground
+
+    move.w  #0,ShipBulletActive
+    move.w  #0,ShipBulletY
+    move.w  #0,ShipBulletX
+
+    rts
 ; ------------------
 
 DrawShipBullet:
