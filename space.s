@@ -1,7 +1,7 @@
 ShipY = 239
 ShipSpeed = 2
 ShipBulletTopYMargin = 27
-ShipBulletSpeed = 2
+ShipBulletSpeed = 1
 
     SECTION MyDemo,CODE_C
 
@@ -168,17 +168,21 @@ PuntaBP:
 mainloop:
 
 
+; Gestione Fuoco Ship
+    bsr.w   CheckFire
 
-;    bsr.w   MoveTestBob
+    tst.w   ShipBulletActive
+    beq.s   .nobulletactive
 
-;    move.w  #1,d0
+    bsr.w   DrawShipBulletBackground
+    bsr.w   UpdateShipBulletPosition
+    bsr.w   DrawShipBullet
 
-;    move.w  #$0fff,$dff180
+.nobulletactive
+
+; Gestione mostri
 
     bsr.w   DrawMonstersBackground
-
-;    move.w  #$0001,$dff180
-
     bsr.w   UpdateMonstersPositions
     bsr.w   DrawMonsters
 
@@ -188,16 +192,7 @@ mainloop:
     bsr.w   UpdateShipPosition
     bsr.w   DrawShip
 
-; Gestione Fuoco Ship
-    bsr.w   CheckFire
 
-    tst.w   ShipBulletActive
-    beq.s   .nobulletactive
-
-    bsr.w   UpdateShipBulletPosition
-    bsr.w   DrawShipBullet
-
-.nobulletactive
 
     bsr.w   wframe
 
@@ -484,6 +479,50 @@ DrawShipBullet:
 
 ; ---------------------------
 
+DrawShipBulletBackground:
+
+    tst     $dff002
+.waitblit
+    btst    #14-8,$dff002
+    bne.s   .waitblit           ; Aspetto il blitter che finisce
+
+    lea     Background,a0
+    lea     Bitplanes,a1
+
+
+    move.w  ShipBulletX,d0
+    move.w  ShipBulletY,d1
+
+    mulu.w  #200,d1             ; solito giù per 5 bitplane
+    lsr.l   #4,d0
+    lsl.l   #1,d0
+
+    add.l   d0,d1
+    add.l   d1,a0
+    add.l   d1,a1
+
+    ; 0 = shift nullo
+    ; 9 = 1001: abilito solo i canali A e D
+    ; f0 = minterm, copia semplice
+    move.l  #$09f00000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
+
+    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
+
+    move.l  a0,$dff050    ; Setto la sorgente su BLTAPTH
+    move.l  a1,$dff054    ; Setto la destinazione su BLTDPTH
+
+    move.w  #316,$dff064    ; Modulo per la sorgente BLTAMOD
+    move.w  #316,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
+
+    move.w  #((5*5)*64)+2,$dff058
+
+    rts
+
+
+
+
+
+;
 ; Routine per il waitraster 
 ; Aspetta la rasterline in d0.w , modifica d0-d2/a0
 
