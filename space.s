@@ -1,3 +1,6 @@
+ShipY = 239
+
+
     SECTION MyDemo,CODE_C
 
 ; Codice di partenza
@@ -172,12 +175,11 @@ mainloop:
     bsr.w   UpdateMonstersPositions
     bsr.w   DrawMonsters
 
+    bsr.w   CleanShipBackground
     bsr.w   UpdateShipPosition
     bsr.w   DrawShip
 
     bsr.w   wframe
-
-
 
     btst    #6,$bfe001
     bne     mainloop
@@ -350,7 +352,7 @@ DrawShip:
     lea     Bitplanes,a2
 
     move.w  ShipBobX,d0
-    move.w  #240,d1
+    move.w  #ShipY,d1
     move.w  #2,d2
     move.w  #16,d3
     move.w  #5,d4
@@ -360,6 +362,35 @@ DrawShip:
     rts
 
 ; --------
+
+CleanShipBackground:
+    move.w  ShipBobX,d0
+
+    lsr.l   #4,d0           ; Divido per 16 prendendo le word di cui spostarmi a destra
+    lsl.l   #1,d0           ; Rimoltiplico per due per ottenere i byte
+
+    lea     Bitplanes+(ShipY*5*40),a0
+
+    add.l   d0,a0
+
+    tst     $dff002
+.waitblit
+    btst    #14-8,$dff002
+    bne.s   .waitblit           ; Aspetto il blitter che finisce
+
+;   0 = shift nullo
+;   1 = 0001 abilito solo il canale D di destinazione, non devo copiare nulla
+;   00 = minterm, cancella tutto
+    move.l  #$01000000,$dff040    ; Dico al blitter che deve solamente pulire
+
+    move.l  #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
+
+    move.l  a0,$dff054          ; Destinazione in BLTDPTH
+
+    move.w  #36,$dff066         ; Modulo canale Destinazione D
+
+    move.w  #((16*5)*64)+2,$dff058      ; BLTSIZE
+    rts
 
 UpdateShipPosition:
 
