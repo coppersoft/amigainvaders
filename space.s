@@ -398,11 +398,19 @@ UpdateShipPosition:
     move.w  $dff00c,d3
     btst.l  #1,d3       ; Bit 1 (destra) è azzerato?
     beq.s   .nodestra   ; Se si salto lo spostamento a destra
+
+; Spostamento a destra
+    cmpi.w  #320-16,ShipBobX
+    beq.s   .exit
     addq.w  #ShipSpeed,ShipBobX
     rts
 .nodestra
     btst.l  #9,d3       ; Il bit 9 (sinistra) è azzerato?
     beq.s   .exit       ; Se si esce
+
+    tst.w   ShipBobX
+    beq.s   .exit
+
     subq.w  #ShipSpeed,ShipBobX
 .exit
     rts
