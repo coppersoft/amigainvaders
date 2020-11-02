@@ -171,17 +171,7 @@ PuntaBP:
 mainloop:
 
 
-; Gestione Fuoco Ship
-    bsr.w   CheckFire
 
-    tst.w   ShipBulletActive
-    beq.s   .nobulletactive
-
-;    bsr.w   DrawShipBulletBackground
-    bsr.w   UpdateShipBulletPosition
-    bsr.w   DrawShipBullet
-
-.nobulletactive
 
 ; Gestione mostri
 
@@ -195,7 +185,17 @@ mainloop:
     bsr.w   UpdateShipPosition
     bsr.w   DrawShip
 
+; Gestione Fuoco Ship
+    bsr.w   CheckFire
 
+    tst.w   ShipBulletActive
+    beq.s   .nobulletactive
+
+;    bsr.w   DrawShipBulletBackground
+    bsr.w   UpdateShipBulletPosition
+    bsr.w   DrawShipBullet
+
+.nobulletactive
 
 ;    bsr.w   WaitVBL
     bsr.w   wframe
@@ -757,10 +757,10 @@ WaitVBL:
 wframe:
 	btst #0,$dff005
 	bne.b wframe
-	cmp.b #$2a,$dff006      ; Spostato da 2a a c1 per dare aria al blitter
+	cmp.b #$c1,$dff006      ; Spostato da 2a a c1 per dare aria al blitter
 	bne.b wframe
 wframe2:
-	cmp.b #$2a,$dff006
+	cmp.b #$c1,$dff006
 	beq.b wframe2
     rts
 ; *************** FINE ROUTINE UTILITY
