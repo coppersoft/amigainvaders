@@ -185,7 +185,7 @@ mainloop:
 
 ; Gestione mostri
 
-    bsr.w   DrawMonstersBackground
+;    bsr.w   DrawMonstersBackground
     bsr.w   UpdateMonstersPositions
     bsr.w   DrawMonsters
 
@@ -560,7 +560,7 @@ WaitRaster:
 ; d3    Altezza in word totali
 
 BlitBob:
-    movem.l d5-d7,-(SP)
+    movem.l d5-d7/a3,-(SP)
 
     tst     $dff002
 .waitblit
@@ -596,7 +596,10 @@ BlitBob:
     add.l   d0,d1               ; Gli aggiungo i byte di scostamento a destra della posizione X
     add.l   d1,a2               ; Offset con l'inizio dei bitplane
 
-    move.l  a2,$dff048          ; Setto lo sfondo su BLTCPTH
+    lea     Background,a3
+    add.l   d1,a3
+
+    move.l  a3,$dff048          ; Setto lo sfondo su BLTCPTH
     move.l  a2,$dff054          ; Setto la destinazione su BLTDPTH
 
     ; Calcolo moduli
@@ -623,7 +626,7 @@ BlitBob:
 
     move.w  d3,$dff058                   ; Setto le dimensioni e lancio la blittata
 
-    movem.l (SP)+,d5-d7
+    movem.l (SP)+,d5-d7/a3
 
     rts
 
