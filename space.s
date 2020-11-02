@@ -229,7 +229,7 @@ CheckCollisions:
 
 ; E' un mostro ancora in vita?
     tst.w   d2
-    beq.s   .loopmonsters       ; Se si passo al prossimo
+    beq.s   .loopmonsters       ; Se no passo al prossimo
 
 ; E' in vita, prendo la posizione del proiettile
     move.w  ShipBulletX,d2      ; xp in d2
