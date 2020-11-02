@@ -171,13 +171,25 @@ mainloop:
 
 ;    move.w  #1,d0
 
+;    move.w  #$0fff,$dff180
+
     bsr.w   DrawMonstersBackground
+
+;    move.w  #$0001,$dff180
+
     bsr.w   UpdateMonstersPositions
     bsr.w   DrawMonsters
+
+; Gestione Ship
 
     bsr.w   CleanShipBackground
     bsr.w   UpdateShipPosition
     bsr.w   DrawShip
+
+; Gestione Fuoco Ship
+    bsr.w   CheckFire
+
+
 
     bsr.w   wframe
 
@@ -415,6 +427,23 @@ UpdateShipPosition:
 .exit
     rts
 
+; ---------------------------
+
+CheckFire:
+    tst.w   ShipBulletActive
+    bne.s   .exit_cf
+    btst    #7,$bfe001
+    bne.s   .exit_cf
+
+    move.w  #1,ShipBulletActive
+    move.w  ShipBobX,ShipBulletX
+    move.w  #ShipY-16,ShipBulletY
+
+.exit_cf
+    rts
+
+
+; ---------------------------
 
 ; Routine per il waitraster 
 ; Aspetta la rasterline in d0.w , modifica d0-d2/a0
@@ -939,8 +968,12 @@ BackupBkgShipBullet:
 ShipBobX:
     dc.w    120
 
-
-
+ShipBulletActive:
+    dc.w    0
+ShipBulletX:
+    dc.w    0
+ShipBulletY:
+    dc.w    0
 
 Spr0:
 	dc.w $2c80,$3c00	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
