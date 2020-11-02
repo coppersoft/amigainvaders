@@ -194,7 +194,9 @@ mainloop:
 
 
 
+;    bsr.w   WaitVBL
     bsr.w   wframe
+
 
     btst    #6,$bfe001
     bne     mainloop
@@ -273,8 +275,8 @@ DrawMonsters:
 .found
     
     move.w  #2,d2           ; Dimensione in word
-    move.w  #16,d3          ; Altezza
-    move.w  #5,d4           ; Numero bitplane
+    move.w  #16*5,d3          ; Altezza
+;    move.w  #5,d4           ; Numero bitplane
 
     lea     Bitplanes,a2
 
@@ -369,8 +371,8 @@ DrawShip:
     move.w  ShipBobX,d0
     move.w  #ShipY,d1
     move.w  #2,d2
-    move.w  #16,d3
-    move.w  #5,d4
+    move.w  #16*5,d3
+    
 
     bsr.w   BlitBob
 
@@ -471,8 +473,8 @@ DrawShipBullet:
     move.w  ShipBulletX,d0
     move.w  ShipBulletY,d1
     move.w  #2,d2
-    move.w  #7,d3
-    move.w  #5,d4
+    move.w  #7*5,d3
+;    move.w  #5,d4
     bsr.w   BlitBob
 
     rts
@@ -505,6 +507,8 @@ DrawShipBulletBackground:
     ; 9 = 1001: abilito solo i canali A e D
     ; f0 = minterm, copia semplice
     move.l  #$09f00000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
+;    move.l  #$09000000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
+
 
     move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
 
@@ -514,7 +518,7 @@ DrawShipBulletBackground:
     move.w  #316,$dff064    ; Modulo per la sorgente BLTAMOD
     move.w  #316,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
 
-    move.w  #((5*5)*64)+2,$dff058
+    move.w  #((7*5)*64)+2,$dff058
 
     rts
 
@@ -550,8 +554,7 @@ WaitRaster:
 ; d0    Posizione X
 ; d1    Posizione Y
 ; d2    Larghezza in word
-; d3    Altezza
-; d4    Numero bitplane
+; d3    Altezza in word totali
 
 BlitBob:
     movem.l d5-d7,-(SP)
@@ -585,8 +588,8 @@ BlitBob:
     move.l  a0,$dff050          ; Setto la sorgente su BLTAPTH
     move.l  a1,$dff04c          ; Setto la maschera su BLTBPTH
 
-    mulu.w  #40,d1              ; Scendo di 40 byte per ogni posizione Y
-    mulu.w  d4,d1               ; Per il numero dei bitplane
+    mulu.w  #200,d1              ; Scendo di 40 byte per ogni posizione Y
+;    mulu.w  d4,d1               ; Per il numero dei bitplane
     add.l   d0,d1               ; Gli aggiungo i byte di scostamento a destra della posizione X
     add.l   d1,a2               ; Offset con l'inizio dei bitplane
 
@@ -595,23 +598,26 @@ BlitBob:
 
     ; Calcolo moduli
 
-    lsl.l   #1,d2               ; Moltiplico d2 per due, per ottenere i byte della larghezza
-    move.l  #40,d6              ; 40 in d6 (numero di byte per ogni riga)
-    sub.l   d2,d6               ; 40 - d2*2 e trovo il modulo
+;    lsl.l   #1,d2               ; Moltiplico d2 per due, per ottenere i byte della larghezza
+;    move.l  #40,d6              ; 40 in d6 (numero di byte per ogni riga)
+;    sub.l   d2,d6               ; 40 - d2*2 e trovo il modulo
 
     move.w  #0,$dff064          ; Modulo zero per la sorgente BLTAMOD
     move.w  #0,$dff062          ; Modulo zero per la sorgente maschera BLTBMOD
-    move.w  d6,$dff060          ; Modulo per il canale C con lo sfondo BLTCMOD
-    move.w  d6,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
+    move.w  #36,$dff060          ; Modulo per il canale C con lo sfondo BLTCMOD
+    move.w  #36,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
 
     ; Bltsize: dimensione y * 64 + dim x
 
-    mulu.w  d4,d3               ; Altezza * numero di bitplane
-    lsl.l   #6,d3               ; Sposto l'altezza nei 10 bit alti di BLTSIZE
+;    mulu.w  d4,d3               ; Altezza * numero di bitplane
+;    lsl.l   #6,d3               ; Sposto l'altezza nei 10 bit alti di BLTSIZE
 
-    lsr.l   #1,d2               ; Riporto la larghezza in word
+;    lsr.l   #1,d2               ; Riporto la larghezza in word
 
-    add.w   d2,d3
+;    add.w   d2,d3
+    lsl.w   #6,d3
+    add.w  d2,d3
+
     move.w  d3,$dff058                   ; Setto le dimensioni e lancio la blittata
 
     movem.l (SP)+,d5-d7
@@ -727,6 +733,16 @@ SimpleBlit:
     move.w  d0,$dff058  ; Dimensioni e blittata
     rts
 
+
+; Versione infamia
+WaitVBL:
+.wat
+	cmpi.b	#$FF,$dff006
+	bne.s	.wat
+.wat2:
+	cmpi.b	#$38,$dff006
+	bne.s	.wat2	
+	rts	
 
 
 wframe:
@@ -918,6 +934,7 @@ GreenRow:
     dc.w    40
     dc.w    0
     dc.w    1
+
 
 ; Fila mostri rossi
 RedRow:
