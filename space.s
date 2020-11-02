@@ -285,15 +285,7 @@ CheckCollisions:
 DrawMonsters:
     
     lea     Monsters,a4
-    clr.l   d0
-    clr.l   d1
-    clr.l   d2
-    clr.l   d3
-    clr.l   d4
-    clr.l   d5
-    clr.l   d6
-
-
+ 
 .loopmonsters:
     move.w  (a4)+,d0
     cmpi.w  #$ffff,d0      ; E' fine lista?
