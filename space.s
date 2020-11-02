@@ -1,5 +1,5 @@
 ShipY = 239
-
+ShipSpeed = 2
 
     SECTION MyDemo,CODE_C
 
@@ -398,12 +398,12 @@ UpdateShipPosition:
     move.w  $dff00c,d3
     btst.l  #1,d3       ; Bit 1 (destra) è azzerato?
     beq.s   .nodestra   ; Se si salto lo spostamento a destra
-    addq.w  #1,ShipBobX
+    addq.w  #ShipSpeed,ShipBobX
     rts
 .nodestra
     btst.l  #9,d3       ; Il bit 9 (sinistra) è azzerato?
     beq.s   .exit       ; Se si esce
-    subq.w  #1,ShipBobX
+    subq.w  #ShipSpeed,ShipBobX
 .exit
     rts
 
