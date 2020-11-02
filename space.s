@@ -1,5 +1,7 @@
 ShipY = 239
 ShipSpeed = 2
+ShipBulletTopYMargin = 27
+ShipBulletSpeed = 2
 
     SECTION MyDemo,CODE_C
 
@@ -188,7 +190,8 @@ mainloop:
 
 ; Gestione Fuoco Ship
     bsr.w   CheckFire
-
+    bsr.w   UpdateShipBulletPosition
+    bsr.w   DrawShipBullet
 
 
     bsr.w   wframe
@@ -442,6 +445,45 @@ CheckFire:
 .exit_cf
     rts
 
+; ------------------
+
+UpdateShipBulletPosition:
+    tst.w   ShipBulletActive
+    beq.s   .exit_usb
+
+    move.w  ShipBulletY,d0
+    cmpi.w  #ShipBulletTopYMargin,d0
+    bne.s   .nonmargine
+
+    move.w  #0,ShipBulletActive
+    move.w  #0,ShipBulletY
+    move.w  #0,ShipBulletX
+
+.nonmargine
+    subi.w  #ShipBulletSpeed,ShipBulletY
+.exit_usb
+    rts
+
+
+; ------------------
+
+DrawShipBullet:
+    tst.w   ShipBulletActive
+    beq.s   .nonblitta
+
+    lea     ShipBullet,a0
+    lea     ShipBulletMask,a1
+    lea     Bitplanes,a2
+
+    move.w  ShipBulletX,d0
+    move.w  ShipBulletY,d1
+    move.w  #2,d2
+    move.w  #7,d3
+    move.w  #5,d4
+    bsr.w   BlitBob
+
+.nonblitta
+    rts
 
 ; ---------------------------
 
