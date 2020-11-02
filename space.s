@@ -190,9 +190,14 @@ mainloop:
 
 ; Gestione Fuoco Ship
     bsr.w   CheckFire
+
+    tst.w   ShipBulletActive
+    beq.s   .nobulletactive
+
     bsr.w   UpdateShipBulletPosition
     bsr.w   DrawShipBullet
 
+.nobulletactive
 
     bsr.w   wframe
 
@@ -448,9 +453,6 @@ CheckFire:
 ; ------------------
 
 UpdateShipBulletPosition:
-    tst.w   ShipBulletActive
-    beq.s   .exit_usb
-
     move.w  ShipBulletY,d0
     cmpi.w  #ShipBulletTopYMargin,d0
     bne.s   .nonmargine
@@ -461,16 +463,12 @@ UpdateShipBulletPosition:
 
 .nonmargine
     subi.w  #ShipBulletSpeed,ShipBulletY
-.exit_usb
     rts
 
 
 ; ------------------
 
 DrawShipBullet:
-    tst.w   ShipBulletActive
-    beq.s   .nonblitta
-
     lea     ShipBullet,a0
     lea     ShipBulletMask,a1
     lea     Bitplanes,a2
@@ -482,7 +480,6 @@ DrawShipBullet:
     move.w  #5,d4
     bsr.w   BlitBob
 
-.nonblitta
     rts
 
 ; ---------------------------
