@@ -1,7 +1,7 @@
 ShipY = 239
 ShipSpeed = 2
-ShipBulletTopYMargin = 27
-ShipBulletSpeed = 1
+ShipBulletTopYMargin = 28
+ShipBulletSpeed = 2
 
     SECTION MyDemo,CODE_C
 
@@ -177,7 +177,7 @@ mainloop:
     tst.w   ShipBulletActive
     beq.s   .nobulletactive
 
-    bsr.w   DrawShipBulletBackground
+;    bsr.w   DrawShipBulletBackground
     bsr.w   UpdateShipBulletPosition
     bsr.w   DrawShipBullet
 
@@ -446,7 +446,7 @@ CheckFire:
 
     move.w  #1,ShipBulletActive
     move.w  ShipBobX,ShipBulletX
-    move.w  #ShipY-16,ShipBulletY
+    move.w  #ShipY-9,ShipBulletY
 
 .exit_cf
     rts
@@ -473,11 +473,12 @@ DrawShipBullet:
     lea     ShipBullet,a0
     lea     ShipBulletMask,a1
     lea     Bitplanes,a2
+    lea     Background,a3
 
     move.w  ShipBulletX,d0
     move.w  ShipBulletY,d1
     move.w  #2,d2
-    move.w  #7*5,d3
+    move.w  #9*5,d3
 ;    move.w  #5,d4
     bsr.w   BlitBob
 
