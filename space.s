@@ -268,7 +268,6 @@ CheckCollisions:
     bpl.s	.nocoll
 ; Collisione!!!
 
-    add.w   #2,ShipBulletY
     bsr.w   DisableShipBullet
 
 ; Settare il mostro in stato esplosivo
