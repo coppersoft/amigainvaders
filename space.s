@@ -273,7 +273,7 @@ CheckCollisions:
 
 ; Settare il mostro in stato esplosivo
 
-    rts
+    bra.s   .fineloopmonsters
 .nocoll
     bra.s   .loopmonsters
 
