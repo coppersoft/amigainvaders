@@ -9,8 +9,8 @@ CheckCollisions:
     beq.s   .fineloopmonsters
 
     move.w  (a0)+,d1            ; y in d0
-    add.w   #2,a0               ; Salto il tipo di mostro che non mi interessa
-    move.w  (a0)+,d2            ; vita del mostro in d2
+    add.l   #2,a0               ; Salto il tipo di mostro che non mi interessa
+    move.w  (a0),d2            ; vita del mostro in d2
 
 ; E' un mostro ancora in vita?
     tst.w   d2
@@ -48,8 +48,11 @@ CheckCollisions:
 
 ; Settare il mostro in stato esplosivo
 
+    move.w  #0,(a0)
+
     rts
 .nocoll
+    add.l   #2,a0
     bra.s   .loopmonsters
 
 

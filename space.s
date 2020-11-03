@@ -270,6 +270,10 @@ CheckCollisions:
 
     bsr.w   DisableShipBullet
 
+    sub.w   #2,a0       ; vado a recuperare la vita del mostro colpito
+    move.w  #0,(a0)
+    add.w   #2,a0       ; rimetto com'era prima per continuare il loop in modo pulito
+
 ; Settare il mostro in stato esplosivo
 
     bra.s   .fineloopmonsters
