@@ -1162,13 +1162,13 @@ ShipBulletY:
 
 ShipBulletSprite:
 	dc.w $0,$0	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
-	dc.w	$300c,$300c
-	dc.w	$781e,$781e
-	dc.w	$4812,$781e
-	dc.w	$0000,$781e
-	dc.w	$0000,$300c
-	dc.w	$300c,$0000
-	dc.w	$300c,$0000
+	dc.w	$0180,$0180
+	dc.w	$03c0,$03c0
+	dc.w	$0240,$03c0
+	dc.w	$0000,$03c0
+	dc.w	$0000,$0180
+	dc.w	$0180,$0000
+	dc.w	$0180,$0000
 
 	dc.w 0,0
 
