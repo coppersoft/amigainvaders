@@ -168,8 +168,6 @@ PuntaBP:
 
      bsr.w   CopiaSfondo
 
-
-
 mainloop:
 
 
@@ -179,7 +177,7 @@ mainloop:
 
 ;    bsr.w   DrawMonstersBackground
     bsr.w   UpdateMonstersPositions
-    bsr.w   DrawMonsters
+;   
 
 ; Gestione Ship, questo può stare ovunque.
 
@@ -197,6 +195,7 @@ mainloop:
 
     bsr.w   CheckCollisions
 
+ 
 ; Devo ripetere per forza il controllo per il frame immediatamente successivo
 ; a una collisione
     tst.w   ShipBulletActive
@@ -206,7 +205,7 @@ mainloop:
     
 .nobulletactive
 
-
+    bsr.w   DrawMonsters
     
 
 ;    bsr.w   WaitVBL
@@ -229,10 +228,15 @@ CheckCollisions:
 .loopmonsters
     move.w  (a0)+,d0            ; x in d0
 
+    move.w  d0,d6               ; Mi salvo la x in d6
+
     cmpi.w  #$ffff,d0      ; E' fine lista?
     beq.s   .fineloopmonsters
 
-    move.w  (a0)+,d1            ; y in d0
+    move.w  (a0)+,d1            ; y in d1
+
+    move.w  d1,d7               ; Mi salvo la y in d7
+
     add.w   #2,a0               ; Salto il tipo di mostro che non mi interessa
     move.w  (a0)+,d2            ; vita del mostro in d2
 
@@ -271,10 +275,13 @@ CheckCollisions:
     bsr.w   DisableShipBullet
 
     sub.w   #2,a0       ; vado a recuperare la vita del mostro colpito
-    move.w  #0,(a0)
+    move.w  #0,(a0)     ; Setto il mostro in stato "morto"
     add.w   #2,a0       ; rimetto com'era prima per continuare il loop in modo pulito
 
-; Settare il mostro in stato esplosivo
+    ; Pulisco lo sfondo del mostro
+    move.w  d6,d0
+    move.w  d7,d1
+    bsr.w   CleanHitMonster
 
     bra.s   .fineloopmonsters
 .nocoll
@@ -284,6 +291,47 @@ CheckCollisions:
 .fineloopmonsters
     rts
 
+; --------------
+
+; d0 x
+; d1 y
+CleanHitMonster:
+
+    lea     Background,a1
+    lea     Bitplanes,a2
+
+    tst     $dff002
+.waitblit
+    btst    #14-8,$dff002
+    bne.s   .waitblit           ; Aspetto il blitter che finisce
+
+    mulu.w  #200,d1         ; Giù per 5 bitplane
+
+    lsr.l   #4,d0           ; Divido per 16 prendendo le word di cui spostarmi a destra
+    lsl.l   #1,d0           ; Rimoltiplico per due per ottenere i byte
+
+    add.l   d0,d1           ; Aggiungo lo scostamento in byte
+    add.l   d1,a1           ; Posiziono sorgente e destinazione sullo stesso offset
+    add.l   d1,a2
+
+    ; 0 = shift nullo
+    ; 9 = 1001: abilito solo i canali A e D
+    ; f0 = minterm, copia semplice
+    move.l  #$09f00000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
+
+    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
+
+    move.l  a1,$dff050    ; Setto la sorgente su BLTAPTH
+    move.l  a2,$dff054    ; Setto la destinazione su BLTDPTH
+
+    move.w  #4,$dff064    ; Modulo per la sorgente BLTAMOD
+    move.w  #4,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
+
+    move.w  #((16*5)*64)+18,$dff058
+
+    rts
+
+; --------------
 
 DrawMonsters:
     
