@@ -193,6 +193,8 @@ mainloop:
 
     bsr.w   UpdateShipBulletPosition
 
+    ; Checkcollisions cancella il mostro dallo schermo e inserisce
+    ; una nuova esplosione nella lista
     bsr.w   CheckCollisions
 
  
@@ -207,6 +209,8 @@ mainloop:
 
     bsr.w   DrawMonsters
     
+; Alla fine visualizzo le eventuali esplosioni in corso
+    bsr.w   DrawExplosions
 
 ;    bsr.w   WaitVBL
     bsr.w   wframe
@@ -220,6 +224,68 @@ mainloop:
 
 
 ; *************** INIZIO ROUTINE UTILITY
+
+; d0 x
+; d1 y
+AddExplosion:
+    lea     ExplosionsList,a0
+.looplist
+    move.w  (a0),d2             ; Cerco la fine della lista
+    cmpi.w  #$ffff,d2
+    beq.s   .trovatafinelista
+    add.w   #2,a0               ; Proseguo
+    bra.s   .looplist
+.trovatafinelista
+    move.w  d0,(a0)+            ; Sostituisco il segnale di fine lista con la x
+    move.w  d1,(a0)+            ; y
+    move.w  #0,(a0)+            ; Primo fotogramma
+    move.w  #$ffff,(a0)         ; Nuovo fine lista
+    rts
+
+; ------------------
+
+DrawExplosions:
+    lea     ExplosionsList,a4
+
+.explosionsloop
+
+    move.w  (a4)+,d0        ; X in d0
+    cmpi.w  #$ffff,d0       ; Se è fine lista
+    beq.s   .endloop        ; esco
+
+    move.w  (a4)+,d1        ; y in d1
+    move.w  (a4),d4        ; Offset lista fotogrammi in d4
+
+    lea     ExplosionFrames,a0
+    lea     ExplosionFramesMasks,a1
+    lea     Bitplanes,a2
+    lea     Background,a3
+
+    lea     ExplosionFramesList,a5
+    lsl.l   d4              ; Moltiplico per 2
+    add.l   d4,a5           ; Punto il fotogramma nella lista dei frame
+    move.w  (a5),d4         ; Prendo il numero del fotogramma della grafica
+
+    add.w   #1,(a4)
+; TODO qui controllare che non sia $ffff
+
+    mulu.w  #(4*16*5),d4      ; Offset con la grafica bitmap
+
+    add.l   d4,a0           ; E vado a prendere la bitmap del fotogramma
+    add.l   d4,a1
+
+    move.w  #2,d2           ; ATTENZIONE, FORSE NON NECESSARIO CON IL NUOVO BLITBOB SEMPLIFICATO
+    move.w  #16*5,d3
+
+    bsr.w   BlitBob
+
+    add.w  #2,a4           ; Prossima eventuale esplosione
+    bra.s   .explosionsloop
+    
+.endloop
+    rts
+
+; ------------
 
 CheckCollisions:
 
@@ -282,6 +348,10 @@ CheckCollisions:
     move.w  d6,d0
     move.w  d7,d1
     bsr.w   CleanHitMonster
+
+    move.w  d6,d0
+    move.w  d7,d1
+    bsr.w   AddExplosion
 
     bra.s   .fineloopmonsters
 .nocoll
@@ -1159,6 +1229,43 @@ ShipBulletX:
     dc.w    0
 ShipBulletY:
     dc.w    0
+
+; Struttura esplosione
+; x.w
+; y.w
+; frame.w
+; $ffff fine lista
+ExplosionsList:
+    dc.w    $ffff
+    dcb.w   3*10,0  ; 10 dovrebbero bastare...  
+
+ExplosionFrames:
+    incbin  "Exp1.raw"
+    incbin  "Exp2.raw"
+    incbin  "Exp3.raw"
+    incbin  "Exp4.raw"
+    incbin  "Exp5.raw"
+    incbin  "Exp6.raw"
+    incbin  "Exp7.raw"
+    incbin  "Exp8.raw"
+    incbin  "Exp9.raw"
+
+ExplosionFramesMasks:
+    incbin  "Exp1Mask.raw"
+    incbin  "Exp2Mask.raw"
+    incbin  "Exp3Mask.raw"
+    incbin  "Exp4Mask.raw"
+    incbin  "Exp5Mask.raw"
+    incbin  "Exp6Mask.raw"
+    incbin  "Exp7Mask.raw"
+    incbin  "Exp8Mask.raw"
+    incbin  "Exp9.raw"
+
+ExplosionFramesList:
+    dc.w    0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,$ffff
+
+
+
 
 ShipBulletSprite:
 	dc.w $0,$0	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
