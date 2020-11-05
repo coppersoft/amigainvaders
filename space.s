@@ -229,13 +229,18 @@ mainloop:
 ; d1 y
 AddExplosion:
     lea     ExplosionsList,a0
+    move.w  #0,d3
 .looplist
     move.w  (a0),d2             ; Cerco la fine della lista
     cmpi.w  #$ffff,d2
     beq.s   .trovatafinelista
     add.w   #2,a0               ; Proseguo
+    add.w   #2,d3               ; E aggiorno il contatore di scostamento
     bra.s   .looplist
 .trovatafinelista
+
+
+
     move.w  d0,(a0)+            ; Sostituisco il segnale di fine lista con la x
     move.w  d1,(a0)+            ; y
     move.w  #0,(a0)+            ; Primo fotogramma
@@ -254,7 +259,7 @@ DrawExplosions:
     beq.s   .endloop        ; esco
 
     move.w  (a4)+,d1        ; y in d1
-    move.w  (a4),d4        ; Offset lista fotogrammi in d4
+    move.w  (a4),d4        ; Offset lista fotogrammi per questa esplosione in d4
 
     lea     ExplosionFrames,a0
     lea     ExplosionFramesMasks,a1
@@ -266,8 +271,19 @@ DrawExplosions:
     add.l   d4,a5           ; Punto il fotogramma nella lista dei frame
     move.w  (a5),d4         ; Prendo il numero del fotogramma della grafica
 
-    add.w   #1,(a4)
 ; TODO qui controllare che non sia $ffff
+
+    cmpi.w  #$ffff,d4       ; Sono alla fine della lista dei fotogrammi?
+    bne.s   .nofinefotogrammi
+    sub.l   #4,a4
+    move.w  #$ffff,(a4)     ; Fine esplosione
+
+    ; E' sicuramente l'ultima della LIFO, quindi mi posso fermare qui
+    bra.s   .endloop
+
+.nofinefotogrammi
+    add.w   #1,(a4)
+;
 
     mulu.w  #(4*16*5),d4      ; Offset con la grafica bitmap
 
