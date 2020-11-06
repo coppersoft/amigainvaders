@@ -175,7 +175,7 @@ mainloop:
 
 ; Gestione mostri
 
-;    bsr.w   DrawMonstersBackground
+
     bsr.w   UpdateMonstersPositions
 ;   
 
@@ -207,10 +207,14 @@ mainloop:
     
 .nobulletactive
 
+    ; Alla fine visualizzo le eventuali esplosioni in corso
+
+    bsr.w   CleanExplosionsBackground
+
     bsr.w   DrawMonsters
     
-; Alla fine visualizzo le eventuali esplosioni in corso
     bsr.w   DrawExplosions
+
 
 ;    bsr.w   WaitVBL
     bsr.w   wframe
@@ -249,6 +253,25 @@ AddExplosion:
 
 ; ------------------
 
+CleanExplosionsBackground:
+    lea     ExplosionsList,a0
+
+.explosionsloop
+    move.w  (a0)+,d0        ; X in d0
+    cmpi.w  #$ffff,d0       ; Se è fine lista
+    beq.s   .endloop
+
+    move.w  (a0)+,d1
+
+    bsr.w   CleanHitMonster
+    add.w   #2,a0
+    bra.s   .explosionsloop
+
+.endloop
+    rts
+
+; ------------------
+
 DrawExplosions:
     lea     ExplosionsList,a4
 
@@ -264,7 +287,7 @@ DrawExplosions:
     lea     ExplosionFrames,a0
     lea     ExplosionFramesMasks,a1
     lea     Bitplanes,a2
-    lea     Background,a3
+    lea     Bitplanes,a3
 
     lea     ExplosionFramesList,a5
     lsl.l   d4              ; Moltiplico per 2
@@ -765,62 +788,6 @@ BlitBob:
     rts
 
 ; -------------------------------------
-; primo test con tutti i calcoli, anche se semplificati
-
-DrawMonstersBackground:
-
-    lea     GreenRow,a0
-    bsr.w   .drawbackground
-
-    lea     RedRow,a0
-    bsr.w   .drawbackground
-
-    lea     YellowRow,a0
-    bsr.w   .drawbackground
-    
-    rts
-
-.drawbackground
-    tst     $dff002
-.waitblit
-    btst    #14-8,$dff002
-    bne.s   .waitblit           ; Aspetto il blitter che finisce
-
-    clr.l   d0
-    clr.l   d1
-
-    
-    lea     Background,a1
-    lea     Bitplanes,a2
-    move.w  (a0)+,d0        ; x
-    move.w  (a0),d1         ; y
-
-    mulu.w  #200,d1         ; Giù per 5 bitplane
-
-    lsr.l   #4,d0           ; Divido per 16 prendendo le word di cui spostarmi a destra
-    lsl.l   #1,d0           ; Rimoltiplico per due per ottenere i byte
-
-    add.l   d0,d1           ; Aggiungo lo scostamento in byte
-    add.l   d1,a1           ; Posiziono sorgente e destinazione sullo stesso offset
-    add.l   d1,a2
-
-    ; 0 = shift nullo
-    ; 9 = 1001: abilito solo i canali A e D
-    ; f0 = minterm, copia semplice
-    move.l  #$09f00000,$dff040  ; Dico al blitter che operazione effettuare, BLTCON
-
-    move.l #$ffffffff,$dff044   ; maschera, BLTAFWM e BLTALWM
-
-    move.l  a1,$dff050    ; Setto la sorgente su BLTAPTH
-    move.l  a2,$dff054    ; Setto la destinazione su BLTDPTH
-
-    move.w  #4,$dff064    ; Modulo per la sorgente BLTAMOD
-    move.w  #4,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
-
-    move.w  #((16*5)*64)+18,$dff058
-
-    rts
-; -------------------------------------
 
 ; TODO: ATTENZIONE QUA!
 ; Sto copiando bellamente un'intera schermata a ogni frame, non so se il
@@ -1278,7 +1245,7 @@ ExplosionFramesMasks:
     incbin  "Exp9.raw"
 
 ExplosionFramesList:
-    dc.w    0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,7,7,7,8,$ffff
+    dc.w    0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,$ffff
 
 
 
