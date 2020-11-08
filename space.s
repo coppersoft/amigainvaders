@@ -145,13 +145,26 @@ PuntaBP:
 
     ; Setto lo spritepointer (dff120) nello stesso modo fatto per i bitplane
 
-    lea     SpritePointers,a0
+    lea     ShipBulletSpritePointer,a0
     move.l  #ShipBulletSprite,d0
 
     move.w  d0,6(a0)
     swap    d0
     move.w  d0,2(a0)
+
+    lea     EnemyBullet1SpritePointer,a0
+    move.l  #EnemyBulletSprite1,d0
+
+    move.w  d0,6(a0)
     swap    d0
+    move.w  d0,2(a0)
+
+    lea     EnemyBullet2SpritePointer,a0
+    move.l  #EnemyBulletSprite2,d0
+
+    move.w  d0,6(a0)
+    swap    d0
+    move.w  d0,2(a0)
 
 
     ; Setto la copperlist, ovviamente DOPO aver disabilitato gli interrupt se no il SO potrebbe interferire
@@ -167,6 +180,7 @@ PuntaBP:
      bsr.w   SimpleBlit
 
      bsr.w   CopiaSfondo
+
 
 mainloop:
 
@@ -891,10 +905,10 @@ WaitVBL:
 wframe:
 	btst #0,$dff005
 	bne.b wframe
-	cmp.b #$c1,$dff006      ; Spostato da 2a a c1 per dare aria al blitter
+	cmp.b #$fe,$dff006      ; Spostato da 2a a c1 per dare aria al blitter
 	bne.b wframe
 wframe2:
-	cmp.b #$c1,$dff006
+	cmp.b #$fe,$dff006
 	beq.b wframe2
     rts
 ; *************** FINE ROUTINE UTILITY
@@ -936,14 +950,16 @@ bplane_modulo = (320/16)*4
 	dc.w	$0198,$08ab,$019a,$09bc,$019c,$0ade,$019e,$0dff
 	dc.w	$01a0,$0d00,$01a2,$0800,$01a4,$0e80,$01a6,$0ff0
 	dc.w	$01a8,$0990,$01aa,$0444,$01ac,$0555,$01ae,$0666
-	dc.w	$01b0,$0777,$01b2,$0888,$01b4,$0090,$01b6,$00d0
+	dc.w	$01b0,$0777,$01b2,$0070,$01b4,$0090,$01b6,$00d0
 	dc.w	$01b8,$0333,$01ba,$0777,$01bc,$0bbb,$01be,$0fff
 
 ; dff120    SPR0PTH     Sprite 0 pointer, 5 bit alti
 ; dff122    SPR0PTL     Sprite 0 pointer, 15 bit bassi
 ; e così via per gli altri 7: http://amiga-dev.wikidot.com/hardware:sprxpth
 
-SpritePointers:
+; Sprite 0 proiettile astronave
+; Sprite 5 e 6 proiettili nemici
+ShipBulletSpritePointer:
 	dc.w $120,0
 	dc.w $122,0
 
@@ -953,8 +969,10 @@ SpritePointers:
 	dc.w $12a,0
 	dc.w $12c,0
 	dc.w $12e,0
+EnemyBullet1SpritePointer:
 	dc.w $130,0
 	dc.w $132,0
+EnemyBullet2SpritePointer:
 	dc.w $134,0
 	dc.w $136,0
 	dc.w $138,0
@@ -1034,47 +1052,47 @@ Monsters:
 ; Fila mostri verdi
 GreenRow:
     dc.w    8
-    dc.w    40
+    dc.w    140
     dc.w    0
     dc.w    1
 
     dc.w    8+(16*2)
-    dc.w    40
+    dc.w    140
     dc.w    0
     dc.w    1
 
-    dc.w    8+(16*4)
-    dc.w    40
-    dc.w    0
-    dc.w    1
+;    dc.w    8+(16*4)
+;    dc.w    40
+;    dc.w    0
+;    dc.w    1
 
     dc.w    8+(16*6)
-    dc.w    40
+    dc.w    140
     dc.w    0
     dc.w    1
 
     dc.w    8+(16*8)
-    dc.w    40
+    dc.w    140
     dc.w    0
     dc.w    1
 
     dc.w    8+(16*10)
-    dc.w    40
+    dc.w    140
     dc.w    0
     dc.w    1
 
-    dc.w    8+(16*12)
-    dc.w    40
-    dc.w    0
-    dc.w    1
+;    dc.w    8+(16*12)
+;    dc.w    40
+;    dc.w    0
+;    dc.w    1
 
     dc.w    8+(16*14)
-    dc.w    40
+    dc.w    140
     dc.w    0
     dc.w    1
 
     dc.w    8+(16*16)
-    dc.w    40
+    dc.w    140
     dc.w    0
     dc.w    1
 
@@ -1082,94 +1100,94 @@ GreenRow:
 ; Fila mostri rossi
 RedRow:
     dc.w    8
-    dc.w    70
+    dc.w    170
     dc.w    1
     dc.w    1
 
     dc.w    8+(16*2)
-    dc.w    70
+    dc.w    170
     dc.w    1
     dc.w    1
 
-    dc.w    8+(16*4)
-    dc.w    70
-    dc.w    1
-    dc.w    1
+;    dc.w    8+(16*4)
+;    dc.w    70
+;    dc.w    1
+;    dc.w    1
 
     dc.w    8+(16*6)
-    dc.w    70
+    dc.w    170
     dc.w    1
     dc.w    1
 
     dc.w    8+(16*8)
-    dc.w    70
+    dc.w    170
     dc.w    1
     dc.w    1
 
     dc.w    8+(16*10)
-    dc.w    70
+    dc.w    170
     dc.w    1
     dc.w    1
 
-    dc.w    8+(16*12)
-    dc.w    70
-    dc.w    1
-    dc.w    1
+;    dc.w    8+(16*12)
+;    dc.w    70
+;    dc.w    1
+;    dc.w    1
 
     dc.w    8+(16*14)
-    dc.w    70
+    dc.w    170
     dc.w    1
     dc.w    1
 
     dc.w    8+(16*16)
-    dc.w    70
+    dc.w    170
     dc.w    1
     dc.w    1
 
 ; Fila mostri gialli
 YellowRow:
     dc.w    8
-    dc.w    100
+    dc.w    200
     dc.w    2
     dc.w    1
 
     dc.w    8+(16*2)
-    dc.w    100
+    dc.w    200
     dc.w    2
     dc.w    1
 
-    dc.w    8+(16*4)
-    dc.w    100
-    dc.w    2
-    dc.w    1
+;    dc.w    8+(16*4)
+;    dc.w    100
+;    dc.w    2
+;    dc.w    1
 
     dc.w    8+(16*6)
-    dc.w    100
+    dc.w    200
     dc.w    2
     dc.w    1
 
     dc.w    8+(16*8)
-    dc.w    100
+    dc.w    200
     dc.w    2
     dc.w    1
 
     dc.w    8+(16*10)
-    dc.w    100
+    dc.w    200
     dc.w    2
     dc.w    1
 
-    dc.w    8+(16*12)
-    dc.w    100
-    dc.w    2
-    dc.w    1
+;    dc.w    8+(16*12)
+;    dc.w    100
+;   dc.w    2
+;    dc.w    1
 
     dc.w    8+(16*14)
-    dc.w    100
+    dc.w    200
     dc.w    2
     dc.w    1
 
     dc.w    8+(16*16)
-    dc.w    100
+    dc.w    200
     dc.w    2
     dc.w    1
 
@@ -1251,7 +1269,7 @@ ExplosionFramesList:
 
 
 ShipBulletSprite:
-	dc.w $0,$0	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
+	dc.w    $0,$0	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
 	dc.w	$0180,$0180
 	dc.w	$03c0,$03c0
 	dc.w	$0240,$03c0
@@ -1259,8 +1277,26 @@ ShipBulletSprite:
 	dc.w	$0000,$0180
 	dc.w	$0180,$0000
 	dc.w	$0180,$0000
-
 	dc.w 0,0
+
+EnemyBulletSprite1:
+	dc.w    $0,$0	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
+	dc.w	$0000,$7000
+	dc.w	$6800,$f000
+	dc.w	$4800,$f000
+	dc.w	$1800,$f000
+	dc.w	$7000,$0000
+    dc.w    0,0
+
+EnemyBulletSprite2:
+	dc.w    $0,$0	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
+	dc.w	$0000,$7000
+	dc.w	$6800,$f000
+	dc.w	$4800,$f000
+	dc.w	$1800,$f000
+	dc.w	$7000,$0000
+    dc.w    0,0
+
 
 NullSpr:
 	dc.w $2a20,$2b00
