@@ -191,7 +191,7 @@ mainloop:
 ; Gestione mostri
 
 
-    bsr.w   UpdateMonstersPositions
+;    bsr.w   UpdateMonstersPositions
 ;   
 
 ; Gestione Ship, questo può stare ovunque.
@@ -260,13 +260,16 @@ EnemyShoot1_Fire:
     rts
 .fireshoot1
 
+
+
+    ; Trovo il primo mostro ancora vivo, partendo dall'ultimo che ha sparato
+.loopmonsters
+
     cmp.w   #NumberOfMonsters,EnemyBullet1Shooter
     bne.s   .nonazzera
     move.w  #0,EnemyBullet1Shooter
 .nonazzera
 
-    ; Trovo il primo mostro ancora vivo, partendo dall'ultimo che ha sparato
-.loopmonsters 
     move.w  EnemyBullet1Shooter,d0
     lea     Monsters,a0     ; Prendo l'elenco dei mostri
 
@@ -343,13 +346,16 @@ EnemyShoot2_Fire:
     rts
 .fireshoot2
 
+
+
+    ; Trovo il primo mostro ancora vivo, partendo dall'ultimo che ha sparato
+.loopmonsters
+
     cmp.w   #NumberOfMonsters,EnemyBullet2Shooter
     bne.s   .nonazzera
     move.w  #0,EnemyBullet2Shooter
 .nonazzera
 
-    ; Trovo il primo mostro ancora vivo, partendo dall'ultimo che ha sparato
-.loopmonsters 
     move.w  EnemyBullet2Shooter,d0
     lea     Monsters,a0     ; Prendo l'elenco dei mostri
 
@@ -505,10 +511,9 @@ DrawExplosions:
     add.l   d4,a0           ; E vado a prendere la bitmap del fotogramma
     add.l   d4,a1
 
-    move.w  #2,d2           ; ATTENZIONE, FORSE NON NECESSARIO CON IL NUOVO BLITBOB SEMPLIFICATO
     move.w  #16*5,d3
 
-    bsr.w   BlitBob
+    bsr.w   BlitBob16
 
     add.w  #2,a4           ; Prossima eventuale esplosione
     bra.s   .explosionsloop
@@ -674,7 +679,7 @@ DrawMonsters:
     lea     Bitplanes,a2
     lea     Background,a3
 
-    bsr.w   BlitBob
+    bsr.w   BlitBob16
 
 .nonvivo
 
@@ -768,7 +773,7 @@ DrawShip:
     move.w  #16*5,d3
     
 
-    bsr.w   BlitBob
+    bsr.w   BlitBob16
 
     rts
 
@@ -900,6 +905,8 @@ WaitRaster:
     rts
 
 
+; Funzione di blittaggio semplicifata per bob larghi 16 pixel
+
 ; a0    Indirizzo Bob
 ; a1    Indirizzo Maschera
 ; a2    Indirizzo bitplane (interleaved)
@@ -907,10 +914,9 @@ WaitRaster:
 
 ; d0    Posizione X
 ; d1    Posizione Y
-; d2    Larghezza in word
 ; d3    Altezza in word totali
 
-BlitBob:
+BlitBob16:
     movem.l d5-d7/a3,-(SP)
 
     tst     $dff002
@@ -943,7 +949,6 @@ BlitBob:
     move.l  a1,$dff04c          ; Setto la maschera su BLTBPTH
 
     mulu.w  #200,d1              ; Scendo di 40 byte per ogni posizione Y
-;    mulu.w  d4,d1               ; Per il numero dei bitplane
     add.l   d0,d1               ; Gli aggiungo i byte di scostamento a destra della posizione X
     add.l   d1,a2               ; Offset con l'inizio dei bitplane
     add.l   d1,a3               ; In destinazione e background
@@ -951,25 +956,13 @@ BlitBob:
     move.l  a3,$dff048          ; Setto lo sfondo su BLTCPTH
     move.l  a2,$dff054          ; Setto la destinazione su BLTDPTH
 
-    ; Calcolo moduli
-
-;    lsl.l   #1,d2               ; Moltiplico d2 per due, per ottenere i byte della larghezza
-;    move.l  #40,d6              ; 40 in d6 (numero di byte per ogni riga)
-;    sub.l   d2,d6               ; 40 - d2*2 e trovo il modulo
+    ; Moduli per 32 pixel, 4 word
 
     move.w  #0,$dff064          ; Modulo zero per la sorgente BLTAMOD
     move.w  #0,$dff062          ; Modulo zero per la sorgente maschera BLTBMOD
     move.w  #36,$dff060          ; Modulo per il canale C con lo sfondo BLTCMOD
     move.w  #36,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
 
-    ; Bltsize: dimensione y * 64 + dim x
-
-;    mulu.w  d4,d3               ; Altezza * numero di bitplane
-;    lsl.l   #6,d3               ; Sposto l'altezza nei 10 bit alti di BLTSIZE
-
-;    lsr.l   #1,d2               ; Riporto la larghezza in word
-
-;    add.w   d2,d3
     lsl.w   #6,d3
     add.w  d2,d3
 
@@ -978,6 +971,8 @@ BlitBob:
     movem.l (SP)+,d5-d7/a3
 
     rts
+
+
 
 ; -------------------------------------
 
