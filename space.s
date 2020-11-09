@@ -2,6 +2,7 @@ ShipY = 239
 ShipSpeed = 2
 ShipBulletTopYMargin = 28
 ShipBulletSpeed = 1
+NumberOfMonsters = 21
 
     SECTION MyDemo,CODE_C
 
@@ -258,22 +259,31 @@ EnemyShoot1_Fire:
     beq.s   .fireshoot1
     rts
 .fireshoot1
-    ; Qui prendere un numero di mostro a casaccio, facciamo finta che sia in d0
-    move.w  EnemyBullet1Shooter,d0
-    add.w   #1,EnemyBullet1Shooter
-    cmp.w   #21,EnemyBullet1Shooter
+
+    cmp.w   #NumberOfMonsters,EnemyBullet1Shooter
     bne.s   .nonazzera
     move.w  #0,EnemyBullet1Shooter
 .nonazzera
 
+    ; Trovo il primo mostro ancora vivo, partendo dall'ultimo che ha sparato
+.loopmonsters 
+    move.w  EnemyBullet1Shooter,d0
     lea     Monsters,a0     ; Prendo l'elenco dei mostri
+
     lsl.l   #3,d0           ; Ogni mostro occupa 8 byte, quindi moltiplico per 8
     add.l   d0,a0
-
-    
+   
     move.w  (a0)+,EnemyBullet1X
-    move.w  (a0),EnemyBullet1Y
+    move.w  (a0)+,EnemyBullet1Y
+    add.w   #2,a0
+    move.w  (a0)+,d1        ; Vita del mostro in d1
 
+    tst.w   d1
+    bne.s   .attivafuocomostro
+    add.w   #1,EnemyBullet1Shooter
+    bra.s   .loopmonsters
+
+.attivafuocomostro
     move.w  #1,EnemyBullet1Active
 
     rts
@@ -318,6 +328,7 @@ UpdateEnemyShoot1:
     bne.s   .nondisattiva
 
     move.w  #0,EnemyBullet1Active
+    add.w   #1,EnemyBullet1Shooter
 
 .nondisattiva
     rts
@@ -331,22 +342,31 @@ EnemyShoot2_Fire:
     beq.s   .fireshoot2
     rts
 .fireshoot2
-    
-    move.w  EnemyBullet2Shooter,d0
-    add.w   #1,EnemyBullet2Shooter
-    cmp.w   #21,EnemyBullet2Shooter
+
+    cmp.w   #NumberOfMonsters,EnemyBullet2Shooter
     bne.s   .nonazzera
     move.w  #0,EnemyBullet2Shooter
 .nonazzera
 
+    ; Trovo il primo mostro ancora vivo, partendo dall'ultimo che ha sparato
+.loopmonsters 
+    move.w  EnemyBullet2Shooter,d0
     lea     Monsters,a0     ; Prendo l'elenco dei mostri
+
     lsl.l   #3,d0           ; Ogni mostro occupa 8 byte, quindi moltiplico per 8
     add.l   d0,a0
-
-    
+   
     move.w  (a0)+,EnemyBullet2X
-    move.w  (a0),EnemyBullet2Y
+    move.w  (a0)+,EnemyBullet2Y
+    add.w   #2,a0
+    move.w  (a0)+,d1        ; Vita del mostro in d1
 
+    tst.w   d1
+    bne.s   .attivafuocomostro
+    add.w   #1,EnemyBullet2Shooter
+    bra.s   .loopmonsters
+
+.attivafuocomostro
     move.w  #1,EnemyBullet2Active
 
     rts
@@ -391,7 +411,7 @@ UpdateEnemyShoot2:
     bne.s   .nondisattiva
 
     move.w  #0,EnemyBullet2Active
-
+    add.w   #1,EnemyBullet2Shooter 
 .nondisattiva
     rts
 
