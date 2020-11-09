@@ -966,9 +966,9 @@ BobPosX:
 ; Posizionamento dei singoli mostri
 ; Struttura dati:
 ; X.w       Posizione X
-; Y.b       Posizione Y
-; Tipo.b    Tipo di mostro
-; Vivo.b    Vivo = 1, Morto = 0
+; Y.w       Posizione Y
+; Tipo.w    Tipo di mostro
+; Vivo.w    Vivo = 1, Morto = 0
 
 ; Tipi:
 ; 0 = Green monster
