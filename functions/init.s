@@ -63,6 +63,3 @@ exit:
     rts
 
 ; ===== FINE RIPRISTINO SISTEMA OPERATIVO E USCITA
-
-
-
