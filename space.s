@@ -1180,29 +1180,29 @@ Bitplanes:
     dcb.b   (40*256)*5,0
 
 Background:
-    incbin "Back.raw"
+    incbin "gfx/Back.raw"
 
 
 GreenMonster:
-    incbin "GreenMon.raw"
+    incbin "gfx/GreenMon.raw"
 GreenMonsterMask:
-    incbin "GreenMonMask.raw"
+    incbin "gfx/GreenMonMask.raw"
 RedMonster:
-    incbin "RedMon.raw"
+    incbin "gfx/RedMon.raw"
 RedMonsterMask:
-    incbin "RedMonMask.raw"
+    incbin "gfx/RedMonMask.raw"
 YellowMonster:
-    incbin "YellowMon.raw"
+    incbin "gfx/YellowMon.raw"
 YellowMonsterMask:
-    incbin "YellowMonMask.raw"
+    incbin "gfx/YellowMonMask.raw"
 Ship:
-    incbin "Ship.raw"
+    incbin "gfx/Ship.raw"
 ShipMask:
-    incbin "ShipMask.raw"
+    incbin "gfx/ShipMask.raw"
 ShipBullet:
-    incbin "ShipBullet.raw"
+    incbin "gfx/ShipBullet.raw"
 ShipBulletMask:
-    incbin "ShipBulletMask.raw"
+    incbin "gfx/ShipBulletMask.raw"
 
 
 BobPosX:
@@ -1404,26 +1404,26 @@ ExplosionsList:
     dcb.w   3*10,0  ; 10 dovrebbero bastare...  
 
 ExplosionFrames:
-    incbin  "Exp1.raw"
-    incbin  "Exp2.raw"
-    incbin  "Exp3.raw"
-    incbin  "Exp4.raw"
-    incbin  "Exp5.raw"
-    incbin  "Exp6.raw"
-    incbin  "Exp7.raw"
-    incbin  "Exp8.raw"
-    incbin  "Exp9.raw"
+    incbin  "gfx/Exp1.raw"
+    incbin  "gfx/Exp2.raw"
+    incbin  "gfx/Exp3.raw"
+    incbin  "gfx/Exp4.raw"
+    incbin  "gfx/Exp5.raw"
+    incbin  "gfx/Exp6.raw"
+    incbin  "gfx/Exp7.raw"
+    incbin  "gfx/Exp8.raw"
+    incbin  "gfx/Exp9.raw"
 
 ExplosionFramesMasks:
-    incbin  "Exp1Mask.raw"
-    incbin  "Exp2Mask.raw"
-    incbin  "Exp3Mask.raw"
-    incbin  "Exp4Mask.raw"
-    incbin  "Exp5Mask.raw"
-    incbin  "Exp6Mask.raw"
-    incbin  "Exp7Mask.raw"
-    incbin  "Exp8Mask.raw"
-    incbin  "Exp9.raw"
+    incbin  "gfx/Exp1Mask.raw"
+    incbin  "gfx/Exp2Mask.raw"
+    incbin  "gfx/Exp3Mask.raw"
+    incbin  "gfx/Exp4Mask.raw"
+    incbin  "gfx/Exp5Mask.raw"
+    incbin  "gfx/Exp6Mask.raw"
+    incbin  "gfx/Exp7Mask.raw"
+    incbin  "gfx/Exp8Mask.raw"
+    incbin  "gfx/Exp9.raw"
 
 ExplosionFramesList:
     dc.w    0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,$ffff
