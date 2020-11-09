@@ -126,7 +126,8 @@ PuntaBP:
 
     move.l  #Copper,$dff080     ; http://amiga-dev.wikidot.com/hardware:cop1lch  (Copper pointer register) E' un long word move perché il registro è una long word
 
-; TODO: Eventualmente fare una copia generale, ma è solo un dettaglio
+
+InitLevel:
 
      lea     Background,a0
      lea     Bitplanes,a1
@@ -135,6 +136,18 @@ PuntaBP:
      bsr.w   SimpleBlit
 
      bsr.w   CopiaSfondo
+
+; Copio le posizioni iniziali dei mostri
+    move.w  #(4*NumberOfMonsters)-1,d0                    ; 4 word per 21 mostri
+
+    lea     MonstersStartPositions,a0
+    lea     Monsters,a1
+
+.copyloop
+    move.w  (a0)+,(a1)+
+    dbra    d0,.copyloop
+
+
 
 ; GAME LOOP
 
@@ -976,7 +989,10 @@ BobPosX:
 ; 2 = Yellow monster
 ; Se X.w è FFFF => Fine lista.
 Monsters:
+   dcb.w    4*NumberOfMonsters,0
 
+   dc.w    $ffff
+MonstersStartPositions:
 ; Fila mostri verdi
 GreenRow:
     dc.w    8
@@ -1089,7 +1105,7 @@ YellowRow:
     dc.w    2
     dc.w    1
 
-    dc.w    $ffff
+
 
 ; 1 : destra
 ; 0 : sinistra
