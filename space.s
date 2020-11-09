@@ -1099,14 +1099,6 @@ MonstersDirection:
 MonstersDirectionCounter:
     dc.w    0
 
-
-
-;BackupBkgShipBullet:
-    dc.l    0
-    dc.w    0
-    dc.w    0
-    dc.w    0
-
 ShipBobX:
     dc.w    120
 
