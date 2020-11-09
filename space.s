@@ -1099,21 +1099,9 @@ MonstersDirection:
 MonstersDirectionCounter:
     dc.w    0
 
-; Struttura dati per il salvataggio del fondale prima del movimento dei bob
-; Nel caso dei mostri, siccome sono tutti sulla stessa altezza, semplifico facendo
-; salvataggio delle tre strisce
 
-; Offset.l      : offset della word in alto a sinistra del blocco
-; Width.w       : larghezza in word
-; Height.w      : altezza (numero righe)
-; Bitplane.w    : numero bitplane
-BackupBkgMonsters:
-    dc.l    0
-    dc.w    0
-    dc.w    0
-    dc.w    0
 
-BackupBkgShipBullet:
+;BackupBkgShipBullet:
     dc.l    0
     dc.w    0
     dc.w    0
