@@ -1,4 +1,4 @@
-; Funzione di blittaggio con cookie cut semplicifata e ottimizzata per bob larghi 32 pixel (4 word)
+; Funzione di blittaggio con cookie cut semplicifata e ottimizzata per bob larghi 16+16 pixel (4 word)
 
 ; a0    Indirizzo Bob
 ; a1    Indirizzo Maschera
