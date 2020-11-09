@@ -203,6 +203,8 @@ mainloop:
     bsr.w   EnemyShoot1_Fire
     bsr.w   UpdateEnemyShoot1
 
+    bsr.w   EnemyShoot2_Fire
+    bsr.w   UpdateEnemyShoot2
 
 ; Gestione Fuoco Ship
     bsr.w   CheckFire
@@ -248,17 +250,25 @@ mainloop:
 
 ; *************** INIZIO ROUTINE UTILITY
 
+
+; Gestione Fuoco nemico 1
+
 EnemyShoot1_Fire:
     tst.w   EnemyBullet1Active
     beq.s   .fireshoot1
     rts
 .fireshoot1
     ; Qui prendere un numero di mostro a casaccio, facciamo finta che sia in d0
-    move.w  #0,d0
+    move.w  EnemyBullet1Shooter,d0
+    add.w   #1,EnemyBullet1Shooter
+    cmp.w   #21,EnemyBullet1Shooter
+    bne.s   .nonazzera
+    move.w  #0,EnemyBullet1Shooter
+.nonazzera
 
     lea     Monsters,a0     ; Prendo l'elenco dei mostri
-;    lsl.l   #3,d0           ; Ogni mostro occupa 8 byte, quindi moltiplico per 8
-;    add.l   d0,a0
+    lsl.l   #3,d0           ; Ogni mostro occupa 8 byte, quindi moltiplico per 8
+    add.l   d0,a0
 
     
     move.w  (a0)+,EnemyBullet1X
@@ -312,12 +322,84 @@ UpdateEnemyShoot1:
 .nondisattiva
     rts
 
+; -----------
+
+; Gestione Fuoco nemico 2
+
+EnemyShoot2_Fire:
+    tst.w   EnemyBullet2Active
+    beq.s   .fireshoot2
+    rts
+.fireshoot2
+    
+    move.w  EnemyBullet2Shooter,d0
+    add.w   #1,EnemyBullet2Shooter
+    cmp.w   #21,EnemyBullet2Shooter
+    bne.s   .nonazzera
+    move.w  #0,EnemyBullet2Shooter
+.nonazzera
+
+    lea     Monsters,a0     ; Prendo l'elenco dei mostri
+    lsl.l   #3,d0           ; Ogni mostro occupa 8 byte, quindi moltiplico per 8
+    add.l   d0,a0
+
+    
+    move.w  (a0)+,EnemyBullet2X
+    move.w  (a0),EnemyBullet2Y
+
+    move.w  #1,EnemyBullet2Active
+
+    rts
+
+UpdateEnemyShoot2:
+    tst.w   EnemyBullet2Active
+    bne.s   .update
+    rts
+.update
+    add.w   #1,EnemyBullet2Y
+
+    move.w  EnemyBullet2X,d0
+    move.w  ShipBobX,d1
+    cmp.w   d0,d1
+    beq.s   .nonmuovihoriz
+
+    cmp.w   d0,d1
+    bhi.s   .spostadx                            ; Se ShipBobX > EnemyBullet1X
+    bra.s   .sx
+.spostadx
+    add.w   #1,EnemyBullet2X
+    bra.s   .nosx
+.sx
+    sub.w   #1,EnemyBullet2X
+.nosx
+
+.nonmuovihoriz
+
+
+    lea     EnemyBulletSprite2,a1
+    move.w  EnemyBullet2Y,d0
+    move.w  EnemyBullet2X,d1
+
+    add.w  #5,d1
+    add.w  #16,d0
+
+    move.w  #5,d2
+
+    bsr.w   PointSprite
+
+    cmpi.w  #255,EnemyBullet2Y
+    bne.s   .nondisattiva
+
+    move.w  #0,EnemyBullet2Active
+
+.nondisattiva
+    rts
 
 
 
 
 
-
+; --------------
 
 ; d0 x
 ; d1 y
@@ -1315,7 +1397,17 @@ EnemyBullet1X:
     dc.w    0
 EnemyBullet1Y:
     dc.w    0
+EnemyBullet1Shooter:
+    dc.w    0
 
+EnemyBullet2Active:
+    dc.w    0
+EnemyBullet2X:
+    dc.w    0
+EnemyBullet2Y:
+    dc.w    0
+EnemyBullet2Shooter:
+    dc.w    15
 
 ; Struttura esplosione
 ; x.w
