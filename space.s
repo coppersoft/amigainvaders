@@ -199,6 +199,11 @@ mainloop:
     bsr.w   UpdateShipPosition
     bsr.w   DrawShip
 
+; Gestione fuoco nemico
+    bsr.w   EnemyShoot1_Fire
+    bsr.w   UpdateEnemyShoot1
+
+
 ; Gestione Fuoco Ship
     bsr.w   CheckFire
 
@@ -242,6 +247,77 @@ mainloop:
 
 
 ; *************** INIZIO ROUTINE UTILITY
+
+EnemyShoot1_Fire:
+    tst.w   EnemyBullet1Active
+    beq.s   .fireshoot1
+    rts
+.fireshoot1
+    ; Qui prendere un numero di mostro a casaccio, facciamo finta che sia in d0
+    move.w  #0,d0
+
+    lea     Monsters,a0     ; Prendo l'elenco dei mostri
+;    lsl.l   #3,d0           ; Ogni mostro occupa 8 byte, quindi moltiplico per 8
+;    add.l   d0,a0
+
+    
+    move.w  (a0)+,EnemyBullet1X
+    move.w  (a0),EnemyBullet1Y
+
+    move.w  #1,EnemyBullet1Active
+
+    rts
+
+UpdateEnemyShoot1:
+    tst.w   EnemyBullet1Active
+    bne.s   .update
+    rts
+.update
+    add.w   #1,EnemyBullet1Y
+
+    move.w  EnemyBullet1X,d0
+    move.w  ShipBobX,d1
+    cmp.w   d0,d1
+    beq.s   .nonmuovihoriz
+
+    cmp.w   d0,d1
+    bhi.s   .spostadx                            ; Se ShipBobX > EnemyBullet1X
+    bra.s   .sx
+.spostadx
+    add.w   #1,EnemyBullet1X
+    bra.s   .nosx
+.sx
+    sub.w   #1,EnemyBullet1X
+.nosx
+
+.nonmuovihoriz
+
+
+    lea     EnemyBulletSprite1,a1
+    move.w  EnemyBullet1Y,d0
+    move.w  EnemyBullet1X,d1
+
+    add.w  #5,d1
+    add.w  #16,d0
+
+    move.w  #5,d2
+
+    bsr.w   PointSprite
+
+    cmpi.w  #255,EnemyBullet1Y
+    bne.s   .nondisattiva
+
+    move.w  #0,EnemyBullet1Active
+
+.nondisattiva
+    rts
+
+
+
+
+
+
+
 
 ; d0 x
 ; d1 y
@@ -1052,12 +1128,12 @@ Monsters:
 ; Fila mostri verdi
 GreenRow:
     dc.w    8
-    dc.w    140
+    dc.w    40
     dc.w    0
     dc.w    1
 
     dc.w    8+(16*2)
-    dc.w    140
+    dc.w    40
     dc.w    0
     dc.w    1
 
@@ -1067,17 +1143,17 @@ GreenRow:
 ;    dc.w    1
 
     dc.w    8+(16*6)
-    dc.w    140
+    dc.w    40
     dc.w    0
     dc.w    1
 
     dc.w    8+(16*8)
-    dc.w    140
+    dc.w    40
     dc.w    0
     dc.w    1
 
     dc.w    8+(16*10)
-    dc.w    140
+    dc.w    40
     dc.w    0
     dc.w    1
 
@@ -1087,12 +1163,12 @@ GreenRow:
 ;    dc.w    1
 
     dc.w    8+(16*14)
-    dc.w    140
+    dc.w    40
     dc.w    0
     dc.w    1
 
     dc.w    8+(16*16)
-    dc.w    140
+    dc.w    40
     dc.w    0
     dc.w    1
 
@@ -1100,12 +1176,12 @@ GreenRow:
 ; Fila mostri rossi
 RedRow:
     dc.w    8
-    dc.w    170
+    dc.w    70
     dc.w    1
     dc.w    1
 
     dc.w    8+(16*2)
-    dc.w    170
+    dc.w    70
     dc.w    1
     dc.w    1
 
@@ -1115,17 +1191,17 @@ RedRow:
 ;    dc.w    1
 
     dc.w    8+(16*6)
-    dc.w    170
+    dc.w    70
     dc.w    1
     dc.w    1
 
     dc.w    8+(16*8)
-    dc.w    170
+    dc.w    70
     dc.w    1
     dc.w    1
 
     dc.w    8+(16*10)
-    dc.w    170
+    dc.w    70
     dc.w    1
     dc.w    1
 
@@ -1135,24 +1211,24 @@ RedRow:
 ;    dc.w    1
 
     dc.w    8+(16*14)
-    dc.w    170
+    dc.w    70
     dc.w    1
     dc.w    1
 
     dc.w    8+(16*16)
-    dc.w    170
+    dc.w    70
     dc.w    1
     dc.w    1
 
 ; Fila mostri gialli
 YellowRow:
     dc.w    8
-    dc.w    200
+    dc.w    100
     dc.w    2
     dc.w    1
 
     dc.w    8+(16*2)
-    dc.w    200
+    dc.w    100
     dc.w    2
     dc.w    1
 
@@ -1162,17 +1238,17 @@ YellowRow:
 ;    dc.w    1
 
     dc.w    8+(16*6)
-    dc.w    200
+    dc.w    100
     dc.w    2
     dc.w    1
 
     dc.w    8+(16*8)
-    dc.w    200
+    dc.w    100
     dc.w    2
     dc.w    1
 
     dc.w    8+(16*10)
-    dc.w    200
+    dc.w    100
     dc.w    2
     dc.w    1
 
@@ -1182,12 +1258,12 @@ YellowRow:
 ;    dc.w    1
 
     dc.w    8+(16*14)
-    dc.w    200
+    dc.w    100
     dc.w    2
     dc.w    1
 
     dc.w    8+(16*16)
-    dc.w    200
+    dc.w    100
     dc.w    2
     dc.w    1
 
@@ -1224,12 +1300,22 @@ BackupBkgShipBullet:
 ShipBobX:
     dc.w    120
 
+; Bullets
+
 ShipBulletActive:
     dc.w    0
 ShipBulletX:
     dc.w    0
 ShipBulletY:
     dc.w    0
+
+EnemyBullet1Active:
+    dc.w    0
+EnemyBullet1X:
+    dc.w    0
+EnemyBullet1Y:
+    dc.w    0
+
 
 ; Struttura esplosione
 ; x.w
