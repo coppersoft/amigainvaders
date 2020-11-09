@@ -1,7 +1,7 @@
 ShipY = 239
 ShipSpeed = 2
 ShipBulletTopYMargin = 28
-ShipBulletSpeed = 2
+ShipBulletSpeed = 1
 
     SECTION MyDemo,CODE_C
 
@@ -1214,42 +1214,32 @@ GreenRow:
     dc.w    0
     dc.w    1
 
-    dc.w    8+(16*2)
+    dc.w    8+(14*3)
     dc.w    40
     dc.w    0
     dc.w    1
 
-;    dc.w    8+(16*4)
-;    dc.w    40
-;    dc.w    0
-;    dc.w    1
-
-    dc.w    8+(16*6)
+    dc.w    8+(14*6)
     dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    8+(16*8)
+    dc.w    8+(14*9)
     dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    8+(16*10)
+    dc.w    8+(14*12)
     dc.w    40
     dc.w    0
     dc.w    1
 
-;    dc.w    8+(16*12)
-;    dc.w    40
-;    dc.w    0
-;    dc.w    1
-
-    dc.w    8+(16*14)
+    dc.w    8+(14*15)
     dc.w    40
     dc.w    0
     dc.w    1
 
-    dc.w    8+(16*16)
+    dc.w    8+(14*18)
     dc.w    40
     dc.w    0
     dc.w    1
@@ -1262,42 +1252,32 @@ RedRow:
     dc.w    1
     dc.w    1
 
-    dc.w    8+(16*2)
+    dc.w    8+(14*3)
     dc.w    70
     dc.w    1
     dc.w    1
 
-;    dc.w    8+(16*4)
-;    dc.w    70
-;    dc.w    1
-;    dc.w    1
-
-    dc.w    8+(16*6)
+    dc.w    8+(14*6)
     dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    8+(16*8)
+    dc.w    8+(14*9)
     dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    8+(16*10)
+    dc.w    8+(14*12)
     dc.w    70
     dc.w    1
     dc.w    1
 
-;    dc.w    8+(16*12)
-;    dc.w    70
-;    dc.w    1
-;    dc.w    1
-
-    dc.w    8+(16*14)
+    dc.w    8+(14*15)
     dc.w    70
     dc.w    1
     dc.w    1
 
-    dc.w    8+(16*16)
+    dc.w    8+(14*18)
     dc.w    70
     dc.w    1
     dc.w    1
@@ -1309,42 +1289,32 @@ YellowRow:
     dc.w    2
     dc.w    1
 
-    dc.w    8+(16*2)
+    dc.w    8+(14*3)
     dc.w    100
     dc.w    2
     dc.w    1
 
-;    dc.w    8+(16*4)
-;    dc.w    100
-;    dc.w    2
-;    dc.w    1
-
-    dc.w    8+(16*6)
+    dc.w    8+(14*6)
     dc.w    100
     dc.w    2
     dc.w    1
 
-    dc.w    8+(16*8)
+    dc.w    8+(14*9)
     dc.w    100
     dc.w    2
     dc.w    1
 
-    dc.w    8+(16*10)
+    dc.w    8+(14*12)
     dc.w    100
     dc.w    2
     dc.w    1
 
-;    dc.w    8+(16*12)
-;    dc.w    100
-;   dc.w    2
-;    dc.w    1
-
-    dc.w    8+(16*14)
+    dc.w    8+(14*15)
     dc.w    100
     dc.w    2
     dc.w    1
 
-    dc.w    8+(16*16)
+    dc.w    8+(14*18)
     dc.w    100
     dc.w    2
     dc.w    1
