@@ -174,7 +174,6 @@ mainloop:
 
 
     bsr.w   UpdateMonstersPositions
-;   
 
 ; Gestione Ship, questo può stare ovunque.
 
@@ -214,20 +213,16 @@ mainloop:
     ; Alla fine visualizzo le eventuali esplosioni in corso
 
     bsr.w   CleanExplosionsBackground
-
     bsr.w   DrawMonsters
-    
     bsr.w   DrawExplosions
 
-
-;    bsr.w   WaitVBL
     bsr.w   wframe
 
-;    tst.w   MonstersLeft
-;    bne.s   .nonfinito
-;    bsr.w   MissCompLoop
-;    bra.w   InitLevel
-;.nonfinito
+    tst.w   MonstersLeft
+    bne.s   .nonfinito
+    bsr.w   MissCompLoop
+    bra.w   InitLevel
+.nonfinito
 
     btst    #6,$bfe001
     bne     mainloop
@@ -235,6 +230,7 @@ mainloop:
     rts
 ; ===== FINE LOOP PRINCIPALE
 
+; Loop Missione Completata
 MissCompLoop:
     lea     MissioneCompletata,a0
     lea     MissioneCompletataMask,a1
@@ -604,7 +600,7 @@ CheckCollisions:
     move.w  d7,d1
     bsr.w   AddExplosion
 
-;    sub.w   #1,MonstersLeft
+    sub.w   #1,MonstersLeft
 
     bra.s   .fineloopmonsters
 .nocoll
