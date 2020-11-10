@@ -22,6 +22,7 @@
 
 ShipY = 239
 ShipSpeed = 2
+ShipStartX = 120
 ShipBulletTopYMargin = 28
 ShipBulletSpeed = 1
 NumberOfMonsters = 21
@@ -147,7 +148,23 @@ InitLevel:
     move.w  (a0)+,(a1)+
     dbra    d0,.copyloop
 
+    move.w  #0,ShipBulletActive
+    move.w  #0,ShipBulletX
+    move.w  #0,ShipBulletY
 
+    move.w  #ShipStartX,ShipBobX
+
+    move.w  #0,EnemyBullet1Active
+    move.w  #0,EnemyBullet2Active
+    move.w  #0,EnemyBullet1X
+    move.w  #0,EnemyBullet1Y
+    move.w  #0,EnemyBullet2X
+    move.w  #0,EnemyBullet2Y
+
+    move.w  #0,EnemyBullet1Shooter
+    move.w  #10,EnemyBullet2Shooter     
+
+    move.w  #NumberOfMonsters,MonstersLeft
 
 ; GAME LOOP
 
@@ -1114,6 +1131,9 @@ MonstersDirection:
 
 MonstersDirectionCounter:
     dc.w    0
+
+MonstersLeft:
+    dc.w    NumberOfMonsters
 
 ShipBobX:
     dc.w    120
