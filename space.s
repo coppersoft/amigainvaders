@@ -222,6 +222,10 @@ mainloop:
 ;    bsr.w   WaitVBL
     bsr.w   wframe
 
+    tst.w   MonstersLeft
+    bne.s   .nonfinito
+    bra.w   InitLevel
+.nonfinito
 
     btst    #6,$bfe001
     bne     mainloop
@@ -572,6 +576,8 @@ CheckCollisions:
     move.w  d6,d0
     move.w  d7,d1
     bsr.w   AddExplosion
+
+    sub.w   #1,MonstersLeft
 
     bra.s   .fineloopmonsters
 .nocoll
@@ -989,10 +995,6 @@ ShipBullet:
 ShipBulletMask:
     incbin "gfx/ShipBulletMask.raw"
 
-
-BobPosX:
-    dc.w    0
-
 ; Posizionamento dei singoli mostri
 ; Struttura dati:
 ; X.w       Posizione X
@@ -1199,8 +1201,12 @@ ExplosionFramesMasks:
 ExplosionFramesList:
     dc.w    0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,$ffff
 
+; 0 = Playing
+; 1 = Missione Completata
+GameStatus:
+    dc.w    0
 
-
+; SPRITES:
 
 ShipBulletSprite:
 	dc.w    $0,$0	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
