@@ -245,7 +245,10 @@ MissCompLoop:
     bsr.w   BlitBob
 
 .mc_loop
+    bsr.w   CleanExplosionsBackground
     bsr.w   DrawExplosions
+
+    bsr.w   wframe
 
     btst    #7,$bfe001
     bne.s   .mc_loop
