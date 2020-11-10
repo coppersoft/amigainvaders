@@ -24,7 +24,7 @@ ShipY = 239
 ShipSpeed = 2
 ShipStartX = 120
 ShipBulletTopYMargin = 28
-ShipBulletSpeed = 1
+ShipBulletSpeed = 2
 NumberOfMonsters = 21
 
     SECTION MyDemo,CODE_C
@@ -166,13 +166,14 @@ InitLevel:
 
     move.w  #NumberOfMonsters,MonstersLeft
 
+
 ; GAME LOOP
 
 mainloop:
 ; Gestione mostri
 
 
-;    bsr.w   UpdateMonstersPositions
+    bsr.w   UpdateMonstersPositions
 ;   
 
 ; Gestione Ship, questo può stare ovunque.
@@ -222,11 +223,11 @@ mainloop:
 ;    bsr.w   WaitVBL
     bsr.w   wframe
 
-    tst.w   MonstersLeft
-    bne.s   .nonfinito
-    bsr.w   MissCompLoop
-    bra.w   InitLevel
-.nonfinito
+;    tst.w   MonstersLeft
+;    bne.s   .nonfinito
+;    bsr.w   MissCompLoop
+;    bra.w   InitLevel
+;.nonfinito
 
     btst    #6,$bfe001
     bne     mainloop
@@ -449,7 +450,7 @@ AddExplosion:
     cmpi.w  #$ffff,d2
     beq.s   .trovatafinelista
     add.w   #2,a0               ; Proseguo
-    add.w   #2,d3               ; E aggiorno il contatore di scostamento
+;    add.w   #2,d3               ; E aggiorno il contatore di scostamento
     bra.s   .looplist
 .trovatafinelista
 
@@ -486,6 +487,8 @@ DrawExplosions:
     lea     ExplosionsList,a4
 
 .explosionsloop
+
+    clr.l   d4
 
     move.w  (a4)+,d0        ; X in d0
     cmpi.w  #$ffff,d0       ; Se è fine lista
@@ -601,7 +604,7 @@ CheckCollisions:
     move.w  d7,d1
     bsr.w   AddExplosion
 
-    sub.w   #1,MonstersLeft
+;    sub.w   #1,MonstersLeft
 
     bra.s   .fineloopmonsters
 .nocoll
@@ -646,9 +649,7 @@ DrawMonsters:
 
 .found
     
-    move.w  #2,d2           ; Dimensione in word
     move.w  #16*5,d3          ; Altezza
-;    move.w  #5,d4           ; Numero bitplane
 
     lea     Bitplanes,a2
     lea     Background,a3
@@ -743,7 +744,6 @@ DrawShip:
 
     move.w  ShipBobX,d0
     move.w  #ShipY,d1
-    move.w  #2,d2
     move.w  #16*5,d3
     
 

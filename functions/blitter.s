@@ -1,4 +1,4 @@
-; Funzione di blittaggio con cookie cut semplicifata e ottimizzata per bob larghi 16+16 pixel (4 word)
+; Funzione di blittaggio con cookie cut semplicifata e ottimizzata per bob larghi 16+16 pixel (2 word)
 
 ; a0    Indirizzo Bob
 ; a1    Indirizzo Maschera
@@ -57,7 +57,7 @@ BlitBob16:
     move.w  #36,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
 
     lsl.w   #6,d3
-    add.w  d2,d3
+    add.w   #2,d3
 
     move.w  d3,$dff058                   ; Setto le dimensioni e lancio la blittata
 
