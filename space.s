@@ -224,6 +224,7 @@ mainloop:
 
     tst.w   MonstersLeft
     bne.s   .nonfinito
+    bsr.w   MissCompLoop
     bra.w   InitLevel
 .nonfinito
 
@@ -232,6 +233,29 @@ mainloop:
 
     rts
 ; ===== FINE LOOP PRINCIPALE
+
+MissCompLoop:
+    lea     MissioneCompletata,a0
+    lea     MissioneCompletataMask,a1
+    lea     Bitplanes,a2
+
+    move.w  #48,d0
+    move.w  #112,d1
+    move.w  #14,d2
+    move.w  #31,d3
+    move.w  #5,d4
+
+    bsr.w   BlitBob
+
+.mc_loop
+    bsr.w   DrawExplosions
+
+    btst    #7,$bfe001
+    bne.s   .mc_loop
+
+    rts
+
+
 
 ; Includo funzioni utility per blitter e sprite
     include "functions/blitter.s"
@@ -994,6 +1018,11 @@ ShipBullet:
     incbin "gfx/ShipBullet.raw"
 ShipBulletMask:
     incbin "gfx/ShipBulletMask.raw"
+MissioneCompletata:
+    incbin "gfx/MissComp.raw"
+MissioneCompletataMask:
+    incbin "gfx/MissCompMask.raw"
+
 
 ; Posizionamento dei singoli mostri
 ; Struttura dati:
