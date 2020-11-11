@@ -148,6 +148,9 @@ InitLevel:
     move.w  (a0)+,(a1)+
     dbra    d0,.copyloop
 
+    move.w  #1,MonstersDirection
+    move.w  #0,MonstersDirectionCounter
+
     move.w  #0,ShipBulletActive
     move.w  #0,ShipBulletX
     move.w  #0,ShipBulletY
@@ -232,6 +235,17 @@ mainloop:
 
 ; Loop Missione Completata
 MissCompLoop:
+
+.waitforexplosionend
+    bsr.w   CleanExplosionsBackground
+    bsr.w   DrawExplosions
+
+    bsr.w   wframe
+
+    lea     ExplosionsList,a0
+    cmpi.w  #$ffff,(a0)
+    bne.s   .waitforexplosionend
+
     lea     MissioneCompletata,a0
     lea     MissioneCompletataMask,a1
     lea     Bitplanes,a2
@@ -244,12 +258,8 @@ MissCompLoop:
 
     bsr.w   BlitBob
 
-.mc_loop
-    bsr.w   CleanExplosionsBackground
-    bsr.w   DrawExplosions
-
     bsr.w   wframe
-
+.mc_loop
     btst    #7,$bfe001
     bne.s   .mc_loop
 
