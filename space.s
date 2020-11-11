@@ -199,9 +199,9 @@ mainloop:
 
     bsr.w   UpdateShipBulletPosition
 
-    ; Checkcollisions cancella il mostro dallo schermo e inserisce
+    ; CheckcollisionsWithMonsters cancella il mostro dallo schermo e inserisce
     ; una nuova esplosione nella lista
-    bsr.w   CheckCollisions
+    bsr.w   CheckCollisionsWithMonsters
 
  
 ; Devo ripetere per forza il controllo per il frame immediatamente successivo
@@ -548,7 +548,7 @@ DrawExplosions:
 
 ; ------------
 
-CheckCollisions:
+CheckCollisionsWithMonsters:
 
     lea     Monsters,a0
 
