@@ -267,9 +267,10 @@ MissCompLoop:
 
 
 
-; Includo funzioni utility per blitter e sprite
+; Includo funzioni utility per blitter, sprite e collisioni
     include "functions/blitter.s"
     include "functions/sprite.s"
+    include "functions/utils.s"
 
 ; *************** INIZIO ROUTINE UTILITY
 
@@ -577,25 +578,9 @@ CheckCollisions:
     move.w	#(16/2)+(4/2),d4   ; larghezza boundaries mostro e proiettile
 	move.w	#(16/2)+(6/2),d5   ; altezza boundaries mostro e proiettile
 
-    sub.w   d2,d0               ; x mostro - x proiettile = differenza orizzontale vertici sup sx
-    bpl.s   .nonnegX            ; Se non è negativo salta
-    neg.w   d0                  ; Se è negativo prendo il valore assoluto
-.nonnegX
-    cmp.w   d4,d0               ; Confronto con la larghezza boundary
-    bhi.s   .nocoll             ; Se d0 > d4 non c'è collisione orizzontale, e quindi non c'è
-                                ; alcuna collisione => esce.
-
-                                ; Se invece c'è un intersecamento orizzontale, controllo che
-                                ; ci sia anche quello verticale
-    sub.w   d3,d1               ; y mostro - y proiettile
-    bpl.s   .nonnegY            ; Se non è negativo salta
-    neg.w   d1                  ; Se è negativo prendo il valore assoluto
-
-.nonnegY
-    cmp.w   d5,d1               ; Confronto con l'altezza boundary
-                                ; A questo punto se il flag N (3) dello Status Register (SR)
-                                ; E' 1 allora c'è stata collisione
-    bpl.s	.nocoll
+    bsr.w   BoundaryCheck
+    tst.w   d0
+    beq.s   .nocoll
 ; Collisione!!!
 
     bsr.w   DisableShipBullet
@@ -624,6 +609,7 @@ CheckCollisions:
     rts
 
 ; --------------
+
 
 DrawMonsters:
     
