@@ -191,6 +191,13 @@ mainloop:
     bsr.w   EnemyShoot2_Fire
     bsr.w   UpdateEnemyShoot2
 
+; CheckcollisionsWithMonsters cancella il mostro dallo schermo e inserisce
+; una nuova esplosione nella lista
+    bsr.w   CheckCollisionsWithMonsters
+
+    bsr.w   CheckCollisionsWithShip
+
+
 ; Gestione Fuoco Ship
     bsr.w   CheckFire
 
@@ -199,11 +206,6 @@ mainloop:
 
     bsr.w   UpdateShipBulletPosition
 
-    ; CheckcollisionsWithMonsters cancella il mostro dallo schermo e inserisce
-    ; una nuova esplosione nella lista
-    bsr.w   CheckCollisionsWithMonsters
-
- 
 ; Devo ripetere per forza il controllo per il frame immediatamente successivo
 ; a una collisione
     tst.w   ShipBulletActive
@@ -273,6 +275,42 @@ MissCompLoop:
     include "functions/utils.s"
 
 ; *************** INIZIO ROUTINE UTILITY
+
+CheckCollisionsWithShip:
+
+    move.w  ShipBobX,d0
+    move.w  #ShipY-5,d1
+    move.w  EnemyBullet1X,d2
+    move.w  EnemyBullet1Y,d3
+    move.w  #(16/2)+(4/2),d4
+    move.w  #(16/2)+(4/2),d5
+    
+    bsr.w   BoundaryCheck
+
+    tst.w   d0
+    bne.s   .collide
+
+; Controllo anche il secondo, eventualmente salto se il livello
+; non prevede un secondo bullet
+
+    move.w  ShipBobX,d0
+    move.w  #ShipY-5,d1
+    move.w  EnemyBullet2X,d2
+    move.w  EnemyBullet2Y,d3
+    move.w  #(16/2)+(4/2),d4
+    move.w  #(16/2)+(4/2),d5
+
+    bsr.w   BoundaryCheck
+
+    tst.w   d0
+    beq.s   .noncollide
+
+.collide
+    move.w  #$fff,$dff180
+
+.noncollide
+    rts
+
 
 
 ; Gestione Fuoco nemico 1

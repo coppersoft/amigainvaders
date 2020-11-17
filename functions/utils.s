@@ -38,46 +38,46 @@ BoundaryCheck:
 
 ; d0: valore decimale fino a 999999
 ; a0: Destinazione (6 byte)
-DecToStr:
+;DecToStr:
 
-	move.l	d0,d1
-	divu.l	#100000,d1
-	move.b	d1,(a0)+
-	mulu.l	#100000,d1
-	sub.l	d1,d0
+;	move.l	d0,d1
+;	divu.l	#100000,d1
+;	move.b	d1,(a0)+
+;	mulu.l	#100000,d1
+;	sub.l	d1,d0
 
 ; ---
 
-	move.l	d0,d1
-	divu.l	#10000,d1
-	move.b	d1,(a0)+
-	mulu.l	#10000,d1
-	sub.l	d1,d0
+;	move.l	d0,d1
+;	divu.l	#10000,d1
+;	move.b	d1,(a0)+
+;	mulu.l	#10000,d1
+;	sub.l	d1,d0
 
 ; ----
 
-	move.l	d0,d1
-	divu.l	#1000,d1
-	move.b	d1,(a0)+
-	mulu.l	#1000,d1
-	sub.l	d1,d0
+;	move.l	d0,d1
+;	divu.l	#1000,d1
+;	move.b	d1,(a0)+
+;	mulu.l	#1000,d1
+;	sub.l	d1,d0
 
 ; ----
 
-	move.l	d0,d1
-	divu.l	#100,d1
-	move.b	d1,(a0)+
-	mulu.l	#100,d1
-	sub.l	d1,d0
+;	move.l	d0,d1
+;	divu.l	#100,d1
+;	move.b	d1,(a0)+
+;	mulu.l	#100,d1
+;	sub.l	d1,d0
 
 ; ----
 
-	move.l	d0,d1
-	divu.l	#10,d1
-	move.b	d1,(a0)+
-	mulu.l	#10,d1
-	sub.l	d1,d0
+;	move.l	d0,d1
+;	divu.l	#10,d1
+;	move.b	d1,(a0)+
+;	mulu.l	#10,d1
+;	sub.l	d1,d0
 
-	move.b	d0,(a0)
+;	move.b	d0,(a0)
 
-	rts
+;	rts
