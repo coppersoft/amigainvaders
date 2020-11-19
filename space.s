@@ -82,20 +82,7 @@ START:
 	;move.w	#$11,$dff10c		; Disattiva l'AGA
 
 
-    ; Setto CINQUE bitplane 
 
-    lea     Bplpointers,a0 
-    move.l  #Bitplanes,d0
-
-    moveq   #5-1,d1
-PuntaBP:
-    move.w  d0,6(a0)
-    swap    d0 
-    move.w  d0,2(a0) 
-    swap    d0
-    addq.l  #8,a0
-    addi.l  #40,d0
-    dbra    d1,PuntaBP
 
 
 
@@ -130,13 +117,13 @@ PuntaBP:
 
 InitLevel:
 
-     lea     Background,a0
-     lea     Bitplanes,a1
-     move.w  #5,d0
-     move.w  #26,d1
-     bsr.w   SimpleBlit
+;     lea     Background,a0
+;     move.l  draw_buffer,a1
+;     move.w  #5,d0
+;     move.w  #26,d1
+;     bsr.w   SimpleBlit
 
-     bsr.w   CopiaSfondo
+;     bsr.w   CopiaSfondo
 
 ; Copio le posizioni iniziali dei mostri
     move.w  #(4*NumberOfMonsters)-1,d0                    ; 4 word per 21 mostri
@@ -169,20 +156,43 @@ InitLevel:
 
     move.w  #NumberOfMonsters,MonstersLeft
 
+    move.w  #0,ShipStatus
 
 ; GAME LOOP
 
+    move.l  #0,d0
+;    move.l  #0,d1
+;    move.l  #0,d2
+;    move.l  #0,d3
+;    move.l  #0,d4
+;    move.l  #0,d5
+;    move.l  #0,d6
+;    move.l  #0,d7
+  
+
 mainloop:
 ; Gestione mostri
+    
+
+
+    
+
+;    bsr.w   WaitVBL2
 
 
     bsr.w   UpdateMonstersPositions
 
 ; Gestione Ship, questo può stare ovunque.
 
-    bsr.w   CleanShipBackground
+    cmpi.w  #1,ShipStatus               ; Se sta esplodendo
+    beq.s   .nonaggiornaposizioneship
+
+    bsr.w   CleanShipBackground     ; OK
+    
     bsr.w   UpdateShipPosition
-    bsr.w   DrawShip
+    bsr.w   DrawShip                ; OK
+
+.nonaggiornaposizioneship
 
 ; Gestione fuoco nemico
     bsr.w   EnemyShoot1_Fire
@@ -195,7 +205,18 @@ mainloop:
 ; una nuova esplosione nella lista
     bsr.w   CheckCollisionsWithMonsters
 
+; Controllo collisioni proiettili nemici con l'astronave
+; Se è in stato esplosione o invincibile non controlla
+    cmpi.w  #1,ShipStatus
+    beq.s   .nocheckcollship
+
+    cmpi.w  #2,ShipStatus
+    beq.s   .nocheckcollship
+
     bsr.w   CheckCollisionsWithShip
+
+.nocheckcollship
+
 
 
 ; Gestione Fuoco Ship
@@ -217,11 +238,16 @@ mainloop:
 
     ; Alla fine visualizzo le eventuali esplosioni in corso
 
-    bsr.w   CleanExplosionsBackground
-    bsr.w   DrawMonsters
-    bsr.w   DrawExplosions
+    bsr.w   CleanExplosionsBackground   ; chiama cleanhitmonster che è ok
+    bsr.w   DrawMonsters                ; OK
+    bsr.w   DrawExplosions              ; OK
 
+    bsr.w   SwitchBuffers
     bsr.w   wframe
+
+
+    
+; Fase controllo se ho ucciso tutti i mostri
 
     tst.w   MonstersLeft
     bne.s   .nonfinito
@@ -250,7 +276,7 @@ MissCompLoop:
 
     lea     MissioneCompletata,a0
     lea     MissioneCompletataMask,a1
-    lea     Bitplanes,a2
+    move.l  draw_buffer,a2
 
     move.w  #48,d0
     move.w  #112,d1
@@ -306,7 +332,11 @@ CheckCollisionsWithShip:
     beq.s   .noncollide
 
 .collide
-    move.w  #$fff,$dff180
+    bsr.w   CleanShipBackground
+    move.w  ShipBobX,d0
+    move.w  #ShipY,d1
+    bsr.w   AddExplosion
+    move.w  #1,ShipStatus
 
 .noncollide
     rts
@@ -532,6 +562,9 @@ CleanExplosionsBackground:
 ; ------------------
 
 DrawExplosions:
+
+    movem.l d0-d4/a0-a5,-(SP)
+
     lea     ExplosionsList,a4
 
 .explosionsloop
@@ -547,8 +580,8 @@ DrawExplosions:
 
     lea     ExplosionFrames,a0
     lea     ExplosionFramesMasks,a1
-    lea     Bitplanes,a2
-    lea     Bitplanes,a3
+    move.l  draw_buffer,a2
+    move.l  draw_buffer,a3
 
     lea     ExplosionFramesList,a5
     lsl.l   d4              ; Moltiplico per 2
@@ -582,6 +615,8 @@ DrawExplosions:
     bra.s   .explosionsloop
     
 .endloop
+
+    movem.l (SP)+,d0-d4/a0-a5
     rts
 
 ; ------------
@@ -654,6 +689,7 @@ DrawMonsters:
     lea     Monsters,a4
  
 .loopmonsters:
+
     move.w  (a4)+,d0
     cmpi.w  #$ffff,d0      ; E' fine lista?
     beq.s   .fineloopmonsters
@@ -684,7 +720,7 @@ DrawMonsters:
     
     move.w  #16*5,d3          ; Altezza
 
-    lea     Bitplanes,a2
+    move.l  draw_buffer,a2
     lea     Background,a3
 
     bsr.w   BlitBob16
@@ -773,7 +809,7 @@ DrawShip:
 
     lea     Ship,a0
     lea     ShipMask,a1
-    lea     Bitplanes,a2
+    move.l  draw_buffer,a2
 
     move.w  ShipBobX,d0
     move.w  #ShipY,d1
@@ -891,27 +927,7 @@ WaitRaster:
 
 ; -------------------------------------
 
-; TODO: ATTENZIONE QUA!
-; Sto copiando bellamente un'intera schermata a ogni frame, non so se il
-; blitter ce la fa al 50mo di secondo. Eventualmente inventarsi qualcos'altro.
-CopiaSfondo:
 
-    movem.l d0/d1/a0/a1,-(SP)
-
-    lea     Background+(26*40*5),a0
-    lea     Bitplanes+(26*40*5),a1
-    move.w  #200,d0
-    move.w  #5,d1
-    bsr.w   SimpleBlit
-    
-    lea     Background+(226*40*5),a0
-    lea     Bitplanes+(226*40*5),a1
-    move.w  #30,d0
-    move.w  #5,d1
-    bsr.w   SimpleBlit
-
-    movem.l (SP)+,d0/d1/a0/a1
-    rts
 
 ; Versione infamia
 WaitVBL:
@@ -926,12 +942,26 @@ WaitVBL:
 wframe:
 	btst #0,$dff005
 	bne.b wframe
-	cmp.b #$fe,$dff006      ; Spostato da 2a a c1 per dare aria al blitter
+	cmp.b #$2a,$dff006      ; Spostato da 2a a c1 per dare aria al blitter
 	bne.b wframe
 wframe2:
-	cmp.b #$fe,$dff006
+	cmp.b #$2a,$dff006
 	beq.b wframe2
     rts
+
+; Versione corso Randy
+WaitVBL2:
+    
+    lea     $dff000,a5
+    MOVE.L	#$1ff00,d1	; bit per la selezione tramite AND
+	MOVE.L	#$13000,d2	; linea da aspettare = $130, ossia 304
+Waity1:
+	MOVE.L	4(a5),D0	; VPOSR e VHPOSR - $dff004/$dff006
+	AND.L	D1,D0		; Seleziona solo i bit della pos. verticale
+	CMP.L	D2,D0		; aspetta la linea $130 (304)
+	BNE.S	Waity1
+    rts
+
 ; *************** FINE ROUTINE UTILITY
 
 
@@ -1023,9 +1053,17 @@ Bplpointers:
 
 
     EVEN
-Bitplanes:
+Bitplanes1:
+;    dcb.b   (40*256)*5,0
+    incbin "gfx/Back.raw"
+Bitplanes2:
+;    dcb.b   (40*256)*5,0
+    incbin "gfx/Back.raw"
 
-    dcb.b   (40*256)*5,0
+view_buffer:
+	dc.l	Bitplanes1	; buffer visualizzato
+draw_buffer:
+	dc.l	Bitplanes2	; buffer di disegno
 
 Background:
     incbin "gfx/Back.raw"
@@ -1266,6 +1304,12 @@ ExplosionFramesList:
 ; 0 = Playing
 ; 1 = Missione Completata
 GameStatus:
+    dc.w    0
+
+; 0 = Playing
+; 1 = Esplode
+; 2 = Invincibile
+ShipStatus:
     dc.w    0
 
 ; SPRITES:

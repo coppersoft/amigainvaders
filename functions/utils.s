@@ -81,3 +81,39 @@ BoundaryCheck:
 ;	move.b	d0,(a0)
 
 ;	rts
+
+SwitchBuffers:
+
+    movem.l d0-d1/a0,-(SP)
+
+    move.l  draw_buffer,d0
+    move.l  view_buffer,draw_buffer
+    move.l  d0,view_buffer
+
+    ; Setto CINQUE bitplane 
+
+    lea     Bplpointers,a0 
+;    move.l  #Bitplanes,d0
+
+    moveq   #5-1,d1
+PuntaBP:
+    move.w  d0,6(a0)
+    swap    d0 
+    move.w  d0,2(a0) 
+    swap    d0
+    addq.l  #8,a0
+    addi.l  #40,d0
+    dbra    d1,PuntaBP
+
+    movem.l (SP)+,d0-d1/a0
+
+    rts
+
+AspettaUnSecondo:
+
+    move.l  #50,d0
+
+.aspetta
+    bsr.w   wframe
+    dbra    d0,.aspetta
+    rts

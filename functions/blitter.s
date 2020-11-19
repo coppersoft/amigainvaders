@@ -183,16 +183,20 @@ SimpleBlit:
 ; --------------------------------------------------------------------
 
 ; Funzione per pulire lo sfondo dell'astronave, solo canale D e minterm a 0
+; Modifica: cancello l'intera striscia per evitare problemi di "scie" di 2 pixe
+; dovuti al passaggio da un buffer all'altro nello switch del double buffering
 
 CleanShipBackground:
     move.w  ShipBobX,d0
 
-    lsr.l   #4,d0           ; Divido per 16 prendendo le word di cui spostarmi a destra
-    lsl.l   #1,d0           ; Rimoltiplico per due per ottenere i byte
+;    lsr.l   #4,d0           ; Divido per 16 prendendo le word di cui spostarmi a destra
+;    lsl.l   #1,d0           ; Rimoltiplico per due per ottenere i byte
 
-    lea     Bitplanes+(ShipY*5*40),a0
+    move.l  draw_buffer,a0
 
-    add.l   d0,a0
+    add.l   #ShipY*5*40,a0         
+
+;    add.l   d0,a0
 
     tst     $dff002
 .waitblit
@@ -208,9 +212,12 @@ CleanShipBackground:
 
     move.l  a0,$dff054          ; Destinazione in BLTDPTH
 
-    move.w  #36,$dff066         ; Modulo canale Destinazione D
+;    move.w  #36,$dff066         ; Modulo canale Destinazione D
+    move.w  #0,$dff066         ; Modulo canale Destinazione D
 
-    move.w  #((16*5)*64)+2,$dff058      ; BLTSIZE
+    move.w  #((16*5)*64)+20,$dff058      ; BLTSIZE
+;    move.w  #((16*5)*64)+2,$dff058      ; BLTSIZE
+
     rts
 
 ; -------------------------------------------------
@@ -223,7 +230,7 @@ CleanShipBackground:
 CleanHitMonster:
 
     lea     Background,a1
-    lea     Bitplanes,a2
+    move.l  draw_buffer,a2
 
     tst     $dff002
 .waitblit
@@ -255,3 +262,25 @@ CleanHitMonster:
     move.w  #((16*5)*64)+18,$dff058
 
     rts
+
+; TODO: ATTENZIONE QUA!
+; Sto copiando bellamente un'intera schermata a ogni frame, non so se il
+; blitter ce la fa al 50mo di secondo. Eventualmente inventarsi qualcos'altro.
+CopiaSfondo:
+
+;    movem.l d0/d1/a0/a1,-(SP)
+
+;    lea     Background+(26*40*5),a0
+;    lea     Bitplanes+(26*40*5),a1
+;    move.w  #200,d0
+;    move.w  #5,d1
+;    bsr.w   SimpleBlit
+    
+;    lea     Background+(226*40*5),a0
+;    lea     Bitplanes+(226*40*5),a1
+;    move.w  #30,d0
+;    move.w  #5,d1
+;    bsr.w   SimpleBlit
+
+;    movem.l (SP)+,d0/d1/a0/a1
+;    rts
