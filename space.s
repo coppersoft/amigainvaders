@@ -168,17 +168,9 @@ InitLevel:
 ;    move.l  #0,d5
 ;    move.l  #0,d6
 ;    move.l  #0,d7
-  
 
 mainloop:
 ; Gestione mostri
-    
-
-
-    
-
-;    bsr.w   WaitVBL2
-
 
     bsr.w   UpdateMonstersPositions
 
@@ -217,8 +209,6 @@ mainloop:
 
 .nocheckcollship
 
-
-
 ; Gestione Fuoco Ship
     bsr.w   CheckFire
 
@@ -245,8 +235,6 @@ mainloop:
     bsr.w   SwitchBuffers
     bsr.w   wframe
 
-
-    
 ; Fase controllo se ho ucciso tutti i mostri
 
     tst.w   MonstersLeft
@@ -524,20 +512,24 @@ AddExplosion:
     lea     ExplosionsList,a0
     move.w  #0,d3
 .looplist
-    move.w  (a0),d2             ; Cerco la fine della lista
+    move.w  (a0),d2       ; Cerco la fine della lista
     cmpi.w  #$ffff,d2
     beq.s   .trovatafinelista
-    add.w   #2,a0               ; Proseguo
-;    add.w   #2,d3               ; E aggiorno il contatore di scostamento
+    add.w   #2,a0         ; Proseguo
+    add.w   #1,d3        ; E aggiorno il contatore di scostamento
     bra.s   .looplist
 .trovatafinelista
 
+.shift
+    move.w  (a0),6(a0)
+    sub.w   #2,a0
+    dbra    d3,.shift
 
-
-    move.w  d0,(a0)+            ; Sostituisco il segnale di fine lista con la x
-    move.w  d1,(a0)+            ; y
-    move.w  #0,(a0)+            ; Primo fotogramma
-    move.w  #$ffff,(a0)         ; Nuovo fine lista
+    lea	    ExplosionsList,a0
+    move.w  d0,(a0)+      ; Sostituisco il segnale di fine lista con la x
+    move.w  d1,(a0)+      ; y
+    move.w  #0,(a0)+      ; Primo fotogramma
+;    move.w  #$ffff,(a0)   ; Nuovo fine lista
     rts
 
 ; ------------------
@@ -976,6 +968,9 @@ gfxname:
 
     EVEN
 
+
+
+
 Copper:
     dc.w    $1fc,0          ; slow fetch mode, per compatibilità con AGA
  
@@ -1299,7 +1294,7 @@ ExplosionFramesMasks:
     incbin  "gfx/Exp9.raw"
 
 ExplosionFramesList:
-    dc.w    0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,$ffff
+    dc.w    0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,8,8,$ffff
 
 ; 0 = Playing
 ; 1 = Missione Completata
