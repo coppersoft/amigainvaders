@@ -117,11 +117,7 @@ START:
 
 InitLevel:
 
-;     lea     Background,a0
-;     move.l  draw_buffer,a1
-;     move.w  #5,d0
-;     move.w  #26,d1
-;     bsr.w   SimpleBlit
+    bsr.w   CopiaPannello
 
 ;     bsr.w   CopiaSfondo
 
@@ -1049,11 +1045,11 @@ Bplpointers:
 
     EVEN
 Bitplanes1:
-;    dcb.b   (40*256)*5,0
-    incbin "gfx/Back.raw"
+    dcb.b   (40*256)*5,0
+;    incbin "gfx/Back.raw"
 Bitplanes2:
-;    dcb.b   (40*256)*5,0
-    incbin "gfx/Back.raw"
+    dcb.b   (40*256)*5,0
+;    incbin "gfx/Back.raw"
 
 view_buffer:
 	dc.l	Bitplanes1	; buffer visualizzato

@@ -284,3 +284,19 @@ CopiaSfondo:
 
 ;    movem.l (SP)+,d0/d1/a0/a1
 ;    rts
+
+CopiaPannello:
+
+     lea     Background,a0
+     move.l  draw_buffer,a1
+     move.w  #5,d0
+     move.w  #26,d1
+     bsr.w   SimpleBlit
+
+     lea     Background,a0
+     move.l  view_buffer,a1
+     move.w  #5,d0
+     move.w  #26,d1
+     bsr.w   SimpleBlit
+
+     rts
