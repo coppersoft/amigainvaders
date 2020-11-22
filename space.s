@@ -119,7 +119,7 @@ InitLevel:
 
     bsr.w   CopiaPannello
 
-;     bsr.w   CopiaSfondo
+    bsr.w   CopiaSfondo
 
 ; Copio le posizioni iniziali dei mostri
     move.w  #(4*NumberOfMonsters)-1,d0                    ; 4 word per 21 mostri

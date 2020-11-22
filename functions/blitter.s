@@ -263,27 +263,27 @@ CleanBackground:
 
     rts
 
-; TODO: ATTENZIONE QUA!
-; Sto copiando bellamente un'intera schermata a ogni frame, non so se il
-; blitter ce la fa al 50mo di secondo. Eventualmente inventarsi qualcos'altro.
+; Copia sfondo in entrambi i buffer
 CopiaSfondo:
 
-;    movem.l d0/d1/a0/a1,-(SP)
+    movem.l d0/d1/a0/a1,-(SP)
 
-;    lea     Background+(26*40*5),a0
-;    lea     Bitplanes+(26*40*5),a1
-;    move.w  #200,d0
-;    move.w  #5,d1
-;    bsr.w   SimpleBlit
+    lea     Background+(26*40*5),a0
+    move.l  draw_buffer,a1
+    add.l   #26*40*5,a1
+    move.w  #200,d0
+    move.w  #5,d1
+    bsr.w   SimpleBlit
     
-;    lea     Background+(226*40*5),a0
-;    lea     Bitplanes+(226*40*5),a1
-;    move.w  #30,d0
-;    move.w  #5,d1
-;    bsr.w   SimpleBlit
+    lea     Background+(26*40*5),a0
+    move.l  view_buffer,a1
+    add.l   #26*40*5,a1
+    move.w  #200,d0
+    move.w  #5,d1
+    bsr.w   SimpleBlit
 
-;    movem.l (SP)+,d0/d1/a0/a1
-;    rts
+    movem.l (SP)+,d0/d1/a0/a1
+    rts
 
 CopiaPannello:
 
