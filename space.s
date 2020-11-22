@@ -544,7 +544,7 @@ CleanExplosionsBackground:
 
     move.w  (a0)+,d1
 
-    bsr.w   CleanHitMonster
+    bsr.w   CleanBackground
     add.w   #2,a0
     bra.s   .explosionsloop
 
@@ -657,7 +657,7 @@ CheckCollisionsWithMonsters:
     ; Pulisco lo sfondo del mostro
     move.w  d6,d0
     move.w  d7,d1
-    bsr.w   CleanHitMonster
+    bsr.w   CleanBackground
 
     move.w  d6,d0
     move.w  d7,d1

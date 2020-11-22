@@ -222,12 +222,12 @@ CleanShipBackground:
 
 ; -------------------------------------------------
 
-; Funzione per pulire lo sfondo del mostro colpito, chiamata
+; Funzione per pulire lo sfondo del mostro colpito o dell'esplosione, chiamata
 ; immediatamente prima dell'inizio dell'animazione dell'esplosione
 
 ; d0 x
 ; d1 y
-CleanHitMonster:
+CleanBackground:
 
     lea     Background,a1
     move.l  draw_buffer,a2
