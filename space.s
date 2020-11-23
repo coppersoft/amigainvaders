@@ -795,7 +795,8 @@ MoveAllMonstersDown:
 
 DrawShip:
 
-    lea     Ship,a0
+;    lea     Ship,a0
+    move.l  ShipFrame,a0
     lea     ShipMask,a1
     move.l  draw_buffer,a2
 
@@ -1302,6 +1303,9 @@ GameStatus:
 ; 2 = Invincibile
 ShipStatus:
     dc.w    0
+
+ShipFrame:
+    dc.l    Ship
 
 ; SPRITES:
 
