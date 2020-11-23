@@ -152,7 +152,7 @@ InitLevel:
 
     move.w  #NumberOfMonsters,MonstersLeft
 
-    move.w  #0,ShipStatus
+    move.w  #2,ShipStatus
 
 ; GAME LOOP
 
@@ -795,7 +795,27 @@ MoveAllMonstersDown:
 
 DrawShip:
 
-;    lea     Ship,a0
+    cmpi.w  #2,ShipStatus
+    bne.s   .noninvincibile
+
+    lea     Ship,a0
+    lea     ShipInv,a1
+    lea     ShipFrame,a2
+    move.l  (a2),d0
+    cmp.l   d0,a0           ; Sto visualizzando il fotogramma normale?
+    beq.s   .maschera
+    move.l  a0,ShipFrame
+    bra.s   .nonmaschera
+
+.maschera
+    move.l  a1,ShipFrame    ; Lo sostituisco con la maschera
+.nonmaschera
+
+
+.noninvincibile
+
+    move.l  #0,d0
+
     move.l  ShipFrame,a0
     lea     ShipMask,a1
     move.l  draw_buffer,a2
@@ -1077,6 +1097,9 @@ Ship:
     incbin "gfx/Ship.raw"
 ShipMask:
     incbin "gfx/ShipMask.raw"
+ShipInv:
+    incbin "gfx/ShipInv.raw"
+
 ShipBullet:
     incbin "gfx/ShipBullet.raw"
 ShipBulletMask:
