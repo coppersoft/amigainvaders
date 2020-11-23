@@ -27,6 +27,9 @@ ShipBulletTopYMargin = 28
 ShipBulletSpeed = 2
 NumberOfMonsters = 21
 
+ExplosionFrameNumber = 43
+ShipInvincibilityFrameNumber = 100
+
     SECTION MyDemo,CODE_C
 
     include "functions/init.s"
@@ -152,7 +155,7 @@ InitLevel:
 
     move.w  #NumberOfMonsters,MonstersLeft
 
-    move.w  #2,ShipStatus
+    move.w  #0,ShipStatus
 
 ; GAME LOOP
 
@@ -205,6 +208,7 @@ mainloop:
 
 .nocheckcollship
 
+
 ; Gestione Fuoco Ship
     bsr.w   CheckFire
 
@@ -230,6 +234,37 @@ mainloop:
 
     bsr.w   SwitchBuffers
     bsr.w   wframe
+
+; Fase controllo stati dell'astronave
+
+    cmpi.w  #1,ShipStatus
+    bne.s   .nonesplode
+    addq.w  #1,ShipExplosionFrameCounter
+
+    cmpi.w  #ExplosionFrameNumber,ShipExplosionFrameCounter
+    bne.s   .esplosionenonfinita
+    move.w  #0,ShipExplosionFrameCounter
+    move.w  #2,ShipStatus
+
+.esplosionenonfinita
+.nonesplode
+
+    cmpi.w  #2,ShipStatus
+    bne.s   .noninvincibile
+
+    addq.w  #1,ShipInvincibilityFrameCounter
+
+    cmpi.w  #ShipInvincibilityFrameNumber,ShipInvincibilityFrameCounter
+    bne.s   .invincibilitanonfinita
+
+    move.w  #0,ShipInvincibilityFrameCounter
+    move.w  #0,ShipStatus
+    lea     Ship,a0
+    move.l  a0,ShipFrame
+
+.invincibilitanonfinita
+.noninvincibile
+
 
 ; Fase controllo se ho ucciso tutti i mostri
 
@@ -1109,6 +1144,12 @@ MissioneCompletata:
 MissioneCompletataMask:
     incbin "gfx/MissCompMask.raw"
 
+
+ShipExplosionFrameCounter:
+    dc.w    0
+
+ShipInvincibilityFrameCounter;
+    dc.w    0
 
 ; Posizionamento dei singoli mostri
 ; Struttura dati:
