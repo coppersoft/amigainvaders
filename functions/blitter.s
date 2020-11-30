@@ -328,6 +328,10 @@ DrawLifes:
 ; Copio il numero di vite
 
     move.w  Lifes,d0
+
+    tst.w   d0
+    beq.s   .nessunavita
+
     subq.w  #1,d0
     move.w  #0,d1                ; Byte di spostamento a destra per ogni vita da visualizzare
 .lifesloop
@@ -357,6 +361,8 @@ DrawLifes:
 
     addq.w  #2,d1
     dbra    d0,.lifesloop
+
+.nessunavita
 
     rts
 

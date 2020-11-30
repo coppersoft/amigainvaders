@@ -358,6 +358,8 @@ CheckCollisionsWithShip:
     move.w  #ShipY,d1
     bsr.w   AddExplosion
     move.w  #1,ShipStatus
+    sub.w   #1,Lifes
+    bsr.w   ShowLifes
 
 .noncollide
     rts
