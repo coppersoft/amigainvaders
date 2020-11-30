@@ -120,22 +120,6 @@ START:
 
 InitLevel:
 
-    bsr.w   CopiaPannello
-
-    bsr.w   CopiaSfondo
-
-    bsr.w   ShowLifes
-
-; Copio le posizioni iniziali dei mostri
-    move.w  #(4*NumberOfMonsters)-1,d0                    ; 4 word per 21 mostri
-
-    lea     MonstersStartPositions,a0
-    lea     Monsters,a1
-
-.copyloop
-    move.w  (a0)+,(a1)+
-    dbra    d0,.copyloop
-
     move.w  #1,MonstersDirection
     move.w  #0,MonstersDirectionCounter
 
@@ -158,6 +142,21 @@ InitLevel:
     move.w  #NumberOfMonsters,MonstersLeft
 
     move.w  #0,ShipStatus
+    move.w  #3,Lifes
+
+    bsr.w   CopiaPannello
+    bsr.w   CopiaSfondo
+    bsr.w   ShowLifes
+
+; Copio le posizioni iniziali dei mostri
+    move.w  #(4*NumberOfMonsters)-1,d0                    ; 4 word per 21 mostri
+
+    lea     MonstersStartPositions,a0
+    lea     Monsters,a1
+
+.copyloop
+    move.w  (a0)+,(a1)+
+    dbra    d0,.copyloop
 
 ; GAME LOOP
 
@@ -246,6 +245,15 @@ mainloop:
     cmpi.w  #ExplosionFrameNumber,ShipExplosionFrameCounter
     bne.s   .esplosionenonfinita
     move.w  #0,ShipExplosionFrameCounter
+
+; Fase controllo se ho finito le vite
+
+    tst.w   Lifes
+    bne.s   .nonfinite
+    bsr.w   GameOverLoop
+    bra.w   InitLevel
+
+.nonfinite:
     move.w  #2,ShipStatus
 
 .esplosionenonfinita
@@ -266,6 +274,7 @@ mainloop:
 
 .invincibilitanonfinita
 .noninvincibile
+
 
 
 ; Fase controllo se ho ucciso tutti i mostri
@@ -314,6 +323,27 @@ MissCompLoop:
 
     rts
 
+
+GameOverLoop:
+    lea     GameOver,a0
+    lea     GameOverMask,a1
+    move.l  view_buffer,a2
+
+    move.w  #104,d0
+    move.w  #98,d1
+    move.w  #7,d2
+    move.w  #61,d3
+    move.w  #5,d4
+
+    bsr.w   BlitBob
+
+;    bsr.w   SwitchBuffers
+
+.go_loop:
+    btst    #7,$bfe001
+    bne.s   .go_loop
+
+    rts
 
 
 ; Includo funzioni utility per blitter, sprite e collisioni
@@ -1146,11 +1176,17 @@ ShipBullet:
     incbin "gfx/ShipBullet.raw"
 ShipBulletMask:
     incbin "gfx/ShipBulletMask.raw"
+
+; Messaggi
+
 MissioneCompletata:
     incbin "gfx/MissComp.raw"
 MissioneCompletataMask:
     incbin "gfx/MissCompMask.raw"
-
+GameOver:
+    incbin "gfx/GameOver.raw"
+GameOverMask:
+    incbin "gfx/GameOverMask.raw"
 
 ShipExplosionFrameCounter:
     dc.w    0
