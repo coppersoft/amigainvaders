@@ -300,3 +300,63 @@ CopiaPannello:
      bsr.w   SimpleBlit
 
      rts
+
+; a0    buffer dove scrivere
+DrawLifes:
+
+    move.l  a0,a1       ; me lo salvo per dopo
+
+    tst     $dff002
+.waitblit
+    btst    #14-8,$dff002
+    bne.s   .waitblit           ; Aspetto il blitter che finisce
+
+; Prima pulisco lo sfondo del visualizzatore vite rimaste
+
+;    move.l  draw_buffer,a0
+    add.l  #(8*40*5)+2,a0      ; riga 8 seconda word  
+
+; Cancellazione, quindi shift nullo e solo canale D di destinazione, minterm a 0
+    move.l  #$01000000,$dff040
+    move.l  #$ffffffff,$dff044      ; maschera
+
+    move.l  a0,$dff054
+    move.w  #(40-6),$dff066     ; Modulo canale D, salto 3 word
+
+    move.w  #(10*5*64)+3,$dff058        ; BLTSIZE
+
+; Copio il numero di vite
+
+    move.w  Lifes,d0
+    subq.w  #1,d0
+    move.w  #0,d1                ; Byte di spostamento a destra per ogni vita da visualizzare
+.lifesloop
+
+    tst     $dff002
+.waitblit2
+    btst    #14-8,$dff002
+    bne.s   .waitblit2           ; Aspetto il blitter che finisce
+
+    lea     Life,a2
+
+    move.l  a1,a0
+
+    add.l   #(8*40*5)+2,a0      ; riga 8 seconda word
+  
+    add.l   d1,a0               
+
+    move.l  #$09f00000,$dff040  ; Copia semplice, canali A e D
+
+    move.l  a2,$dff050          ; Sorgente in BLTAPTH
+    move.l  a0,$dff054          ; Destinazione in BLTPTH
+
+    move.w  #0,$dff064          ; Modulo 0 per la sorgente
+    move.w  #38,$dff066         ; Modulo 38 byte per la destinazione
+
+    move.w  #(10*5*64)+1,$dff058         ; BLTSIZE
+
+    addq.w  #2,d1
+    dbra    d0,.lifesloop
+
+    rts
+

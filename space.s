@@ -124,6 +124,8 @@ InitLevel:
 
     bsr.w   CopiaSfondo
 
+    bsr.w   ShowLifes
+
 ; Copio le posizioni iniziali dei mostri
     move.w  #(4*NumberOfMonsters)-1,d0                    ; 4 word per 21 mostri
 
@@ -1134,6 +1136,9 @@ ShipMask:
     incbin "gfx/ShipMask.raw"
 ShipInv:
     incbin "gfx/ShipInv.raw"
+Life:
+    incbin "gfx/Life.raw"
+
 
 ShipBullet:
     incbin "gfx/ShipBullet.raw"
@@ -1370,6 +1375,10 @@ ShipStatus:
 
 ShipFrame:
     dc.l    Ship
+
+Lifes:
+    dc.w    3
+
 
 ; SPRITES:
 

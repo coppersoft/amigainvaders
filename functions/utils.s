@@ -109,11 +109,12 @@ PuntaBP:
 
     rts
 
-AspettaUnSecondo:
+ShowLifes:
+    ; Visualizzo il numero di vite, in entrambi i buffer
+    move.l  draw_buffer,a0
+    bsr.w   DrawLifes
 
-    move.l  #50,d0
+    move.l  view_buffer,a0
+    bsr.w   DrawLifes
 
-.aspetta
-    bsr.w   wframe
-    dbra    d0,.aspetta
     rts
