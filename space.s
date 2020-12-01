@@ -148,6 +148,8 @@ InitLevel:
     bsr.w   CopiaSfondo
     bsr.w   ShowLifes
 
+    bsr.w   DrawScore
+
 ; Copio le posizioni iniziali dei mostri
     move.w  #(4*NumberOfMonsters)-1,d0                    ; 4 word per 21 mostri
 
@@ -730,6 +732,9 @@ CheckCollisionsWithMonsters:
 
     sub.w   #1,MonstersLeft
 
+    add.w   #10,Score
+    bsr.w   DrawScore
+
     bra.s   .fineloopmonsters
 .nocoll
     bra.s   .loopmonsters
@@ -1170,7 +1175,8 @@ ShipInv:
     incbin "gfx/ShipInv.raw"
 Life:
     incbin "gfx/Life.raw"
-
+Digits:
+    incbin "gfx/Digits.raw"
 
 ShipBullet:
     incbin "gfx/ShipBullet.raw"
@@ -1191,7 +1197,7 @@ GameOverMask:
 ShipExplosionFrameCounter:
     dc.w    0
 
-ShipInvincibilityFrameCounter;
+ShipInvincibilityFrameCounter:
     dc.w    0
 
 ; Posizionamento dei singoli mostri
@@ -1335,6 +1341,12 @@ MonstersDirectionCounter:
 
 MonstersLeft:
     dc.w    NumberOfMonsters
+
+Score:
+    dc.w    0
+ScoreStr:
+    dcb.b   6,0
+
 
 ShipBobX:
     dc.w    120

@@ -36,9 +36,9 @@ BoundaryCheck:
 ; --------------
 
 
-; d0: valore decimale fino a 999999
+; d0: valore decimale fino a 65535
 ; a0: Destinazione (6 byte)
-;DecToStr:
+DecToStr:
 
 ;	move.l	d0,d1
 ;	divu.l	#100000,d1
@@ -48,39 +48,39 @@ BoundaryCheck:
 
 ; ---
 
-;	move.l	d0,d1
-;	divu.l	#10000,d1
-;	move.b	d1,(a0)+
-;	mulu.l	#10000,d1
-;	sub.l	d1,d0
+	move.l	d0,d1
+	divu.w	#10000,d1
+	move.b	d1,(a0)+
+	mulu.w	#10000,d1
+	sub.l	d1,d0
 
 ; ----
 
-;	move.l	d0,d1
-;	divu.l	#1000,d1
-;	move.b	d1,(a0)+
-;	mulu.l	#1000,d1
-;	sub.l	d1,d0
+	move.l	d0,d1
+	divu.w	#1000,d1
+	move.b	d1,(a0)+
+	mulu.w	#1000,d1
+	sub.l	d1,d0
 
 ; ----
 
-;	move.l	d0,d1
-;	divu.l	#100,d1
-;	move.b	d1,(a0)+
-;	mulu.l	#100,d1
-;	sub.l	d1,d0
+	move.l	d0,d1
+	divu.w	#100,d1
+	move.b	d1,(a0)+
+	mulu.w	#100,d1
+	sub.l	d1,d0
 
 ; ----
 
-;	move.l	d0,d1
-;	divu.l	#10,d1
-;	move.b	d1,(a0)+
-;	mulu.l	#10,d1
-;	sub.l	d1,d0
+	move.l	d0,d1
+	divu.w	#10,d1
+	move.b	d1,(a0)+
+	mulu.w	#10,d1
+	sub.l	d1,d0
 
-;	move.b	d0,(a0)
+	move.b	d0,(a0)
 
-;	rts
+	rts
 
 SwitchBuffers:
 
@@ -118,3 +118,58 @@ ShowLifes:
     bsr.w   DrawLifes
 
     rts
+
+; Routine per la stampa del punteggio
+; CPU based, non blitter
+ScoreStart = (40*10*5)+33
+
+DrawScore:
+
+    move.w  Score,d0
+    lea     ScoreStr,a0
+
+    bsr.w   DecToStr            ; Converto il valore decimale in stringa
+
+    lea     ScoreStr,a0
+
+    move.l  draw_buffer,a4      ; Me li salvo per i successivi loop
+    move.l  view_buffer,a5
+
+    move.l  #0,d2               ; Contatore cifra da stampare
+
+    move.l  #5-1,d3             ; numero di cifre
+
+.drawscoreloop:
+
+    move.l  a4,a1               
+    move.l  a5,a2
+
+    add.l   #ScoreStart,a1
+    add.l   #ScoreStart,a2
+
+    add.l   d2,a1               ; mi sposto di un byte per ogni cifra
+    add.l   d2,a2
+
+    move.l  #0,d0
+
+    move.b  (a0)+,d0            ; Prendo la cifra corrente in d0
+
+    lea     Digits,a3           ; Font delle cifre in a3
+    mulu.w  #7*5,d0             ; Moltiplico per l'altezza del font * 5 bitplane
+    add.l   d0,a3               ; Trovo la posizione iniziale della cifra
+
+    move.w  #(7*5)-1,d1         ; 7 byte * 5 bitplane da copiare
+.drawsingledigitloop:
+
+    move.b  (a3),(a1)
+    move.b  (a3)+,(a2)
+    add.l   #40,a1              ; Equivalente del modulo del blitter
+    add.l   #40,a2
+    dbra    d1,.drawsingledigitloop
+
+    addq.l  #1,d2               ; Passo alla prossima cifra
+    dbra    d3,.drawscoreloop
+
+    rts
+
+
