@@ -30,7 +30,7 @@ NumberOfMonsters = 21
 ExplosionFrameNumber = 43
 ShipInvincibilityFrameNumber = 100
 
-    SECTION MyDemo,CODE_C
+    SECTION AmigaInvaders_Code,CODE_C
 
     include "functions/init.s"
 
@@ -1055,7 +1055,7 @@ gfxname:
     dc.b    "graphics.library",0
 
 
-    SECTION tut,DATA_C
+    SECTION AmigaInvaders_data,DATA_C
 
     EVEN
 
