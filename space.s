@@ -707,8 +707,8 @@ CheckCollisionsWithMonsters:
     move.w  ShipBulletX,d2      ; xp in d2
     move.w  ShipBulletY,d3      ; yp in d3
 
-    move.w	#(16/2)+(4/2),d4   ; larghezza boundaries mostro e proiettile
-	move.w	#(16/2)+(6/2),d5   ; altezza boundaries mostro e proiettile
+    move.w	#(16/2)+(2/2),d4   ; larghezza boundaries mostro e proiettile
+	move.w	#(10/2)+(2/2),d5   ; altezza boundaries mostro e proiettile
 
     bsr.w   BoundaryCheck
     tst.w   d0
