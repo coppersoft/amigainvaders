@@ -21,7 +21,6 @@
 
 
 ShipY = 239
-;ShipSpeed = 2
 ShipStartX = 120
 ShipBulletTopYMargin = 28
 ShipBulletSpeed = 2
