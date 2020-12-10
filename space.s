@@ -445,6 +445,9 @@ UpdateEnemyShoot1:
     
     addq.w  #1,EnemyBullet1Y
 
+    tst.w   FollowingBullets
+    beq.s   .nonmuovihoriz
+
     move.w  EnemyBullet1X,d0
     move.w  ShipBobX,d1
     cmp.w   d0,d1
@@ -530,6 +533,9 @@ UpdateEnemyShoot2:
     rts
 .update
     addq.w  #1,EnemyBullet2Y
+
+    tst.w   FollowingBullets
+    beq.s   .nonmuovihoriz
 
     move.w  EnemyBullet2X,d0
     move.w  ShipBobX,d1
@@ -1392,6 +1398,9 @@ ShipBulletY:
     dc.w    0
 
 ; Proiettili nemici
+
+FollowingBullets:
+    dc.w    0
 
 EnemyBullet1Active:
     dc.w    0
