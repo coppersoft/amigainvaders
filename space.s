@@ -442,8 +442,8 @@ UpdateEnemyShoot1:
     bne.s   .update
     rts
 .update
-    move.w  EnemyBulletSpeed,d7
-    add.w   d7,EnemyBullet1Y
+    
+    addq.w  #1,EnemyBullet1Y
 
     move.w  EnemyBullet1X,d0
     move.w  ShipBobX,d1
@@ -454,10 +454,10 @@ UpdateEnemyShoot1:
     bhi.s   .spostadx                            ; Se ShipBobX > EnemyBullet1X
     bra.s   .sx
 .spostadx
-    add.w   d7,EnemyBullet1X
+    addq.w  #1,EnemyBullet1X
     bra.s   .nosx
 .sx
-    sub.w   d7,EnemyBullet1X
+    subq.w  #1,EnemyBullet1X
 .nosx
 
 .nonmuovihoriz
@@ -475,7 +475,7 @@ UpdateEnemyShoot1:
     bsr.w   PointSprite
 
     cmpi.w  #255,EnemyBullet1Y
-    bne.s   .nondisattiva
+    blt.s   .nondisattiva
 
     move.w  #0,EnemyBullet1Active
     add.w   #1,EnemyBullet1Shooter
@@ -529,8 +529,7 @@ UpdateEnemyShoot2:
     bne.s   .update
     rts
 .update
-    move.w  EnemyBulletSpeed,d7
-    add.w   d7,EnemyBullet2Y
+    addq.w  #1,EnemyBullet2Y
 
     move.w  EnemyBullet2X,d0
     move.w  ShipBobX,d1
@@ -541,10 +540,10 @@ UpdateEnemyShoot2:
     bhi.s   .spostadx                            ; Se ShipBobX > EnemyBullet1X
     bra.s   .sx
 .spostadx
-    add.w   d7,EnemyBullet2X
+    addq.w  #1,EnemyBullet2X
     bra.s   .nosx
 .sx
-    sub.w   d7,EnemyBullet2X
+    subq.w  #1,EnemyBullet2X
 .nosx
 
 .nonmuovihoriz
@@ -562,7 +561,7 @@ UpdateEnemyShoot2:
     bsr.w   PointSprite
 
     cmpi.w  #255,EnemyBullet2Y
-    bne.s   .nondisattiva
+    blt.s   .nondisattiva
 
     move.w  #0,EnemyBullet2Active
     add.w   #1,EnemyBullet2Shooter 
@@ -1393,9 +1392,6 @@ ShipBulletY:
     dc.w    0
 
 ; Proiettili nemici
-
-EnemyBulletSpeed:
-    dc.w    1
 
 EnemyBullet1Active:
     dc.w    0
