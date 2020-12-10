@@ -21,7 +21,7 @@
 
 
 ShipY = 239
-ShipSpeed = 2
+;ShipSpeed = 2
 ShipStartX = 120
 ShipBulletTopYMargin = 28
 ShipBulletSpeed = 2
@@ -915,7 +915,7 @@ DrawShip:
 
 
 UpdateShipPosition:
-
+    move.w  ShipSpeed,d0
     ; JOY1DAT http://amiga-dev.wikidot.com/hardware:joy0dat
     move.w  $dff00c,d3
     btst.l  #1,d3       ; Bit 1 (destra) è azzerato?
@@ -924,7 +924,8 @@ UpdateShipPosition:
 ; Spostamento a destra
     cmpi.w  #320-16,ShipBobX
     beq.s   .exit
-    addq.w  #ShipSpeed,ShipBobX
+    
+    add.w   d0,ShipBobX
     rts
 .nodestra
     btst.l  #9,d3       ; Il bit 9 (sinistra) è azzerato?
@@ -933,7 +934,7 @@ UpdateShipPosition:
     tst.w   ShipBobX
     beq.s   .exit
 
-    subq.w  #ShipSpeed,ShipBobX
+    sub.w  d0,ShipBobX
 .exit
     rts
 
@@ -1387,6 +1388,9 @@ ScoreStr:
 
 ShipBobX:
     dc.w    120
+
+ShipSpeed:
+    dc.w    2
 
 ; Bullets
 
