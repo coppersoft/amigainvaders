@@ -1399,7 +1399,7 @@ ShipBulletX:
     dc.w    0
 ShipBulletY:
     dc.w    0
-ShipBulletSpeed
+ShipBulletSpeed:
     dc.w    2
 
 ; Proiettili nemici
