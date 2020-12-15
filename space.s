@@ -23,7 +23,6 @@
 ShipY = 239
 ShipStartX = 120
 ShipBulletTopYMargin = 28
-ShipBulletSpeed = 2
 NumberOfMonsters = 27
 
 ExplosionFrameNumber = 43
@@ -962,7 +961,8 @@ UpdateShipBulletPosition:
     bsr.w   DisableShipBullet
 
 .nonmargine
-    subi.w  #ShipBulletSpeed,ShipBulletY
+    move.w  ShipBulletSpeed,d0
+    sub.w   d0,ShipBulletY
     rts
 
 ; ------------------
@@ -1399,6 +1399,8 @@ ShipBulletX:
     dc.w    0
 ShipBulletY:
     dc.w    0
+ShipBulletSpeed
+    dc.w    2
 
 ; Proiettili nemici
 
