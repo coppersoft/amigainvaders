@@ -115,6 +115,9 @@ START:
 
     move.l  #Copper,$dff080     ; http://amiga-dev.wikidot.com/hardware:cop1lch  (Copper pointer register) E' un long word move perché il registro è una long word
 
+RestartGame:
+    move.w  #3,Lifes
+    move.w  #1,GameLevel
 
 InitLevel:
 
@@ -140,7 +143,49 @@ InitLevel:
     move.w  #NumberOfMonsters,MonstersLeft
 
     move.w  #0,ShipStatus
-    move.w  #3,Lifes
+    
+; Stabilisco il livello di difficoltà
+    cmpi.w  #1,GameLevel
+    bne.s   .non1
+
+    move.w  #2,ShipSpeed
+    move.w  #2,ShipBulletSpeed
+    move.w  #0,FollowingBullets
+    bra.s   .iniziogioco
+
+.non1:
+    cmpi.w  #2,GameLevel
+    bne.s   .non2
+
+    move.w  #2,ShipSpeed
+    move.w  #2,ShipBulletSpeed
+    move.w  #1,FollowingBullets
+    bra.s   .iniziogioco
+
+
+.non2:
+
+    move.w  #2,ShipSpeed
+    move.w  #1,ShipBulletSpeed
+    move.w  #1,FollowingBullets
+    bra.s   .iniziogioco
+
+    cmpi.w  #3,GameLevel
+    bne.s   .non3
+
+.non3:
+    cmpi.w  #4,GameLevel
+    bne.s   .giocofinito
+
+    move.w  #1,ShipSpeed
+    move.w  #1,FollowingBullets
+    move.w  #1,ShipBulletSpeed
+
+.giocofinito
+
+; TODO: Mettere qui il messaggio di gioco finito
+
+.iniziogioco
 
     bsr.w   CopiaPannello
     bsr.w   CopiaSfondo
@@ -1366,7 +1411,8 @@ YellowRow:
     dc.w    2
     dc.w    1
 
-
+GameLevel:
+    dc.w    1
 
 ; 1 : destra
 ; 0 : sinistra
