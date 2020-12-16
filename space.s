@@ -145,6 +145,7 @@ InitLevel:
     move.w  #0,ShipStatus
     
 ; Stabilisco il livello di difficoltà
+
     cmpi.w  #1,GameLevel
     bne.s   .non1
 
@@ -162,16 +163,14 @@ InitLevel:
     move.w  #1,FollowingBullets
     bra.s   .iniziogioco
 
-
 .non2:
+    cmpi.w  #3,GameLevel
+    bne.s   .non3
 
     move.w  #2,ShipSpeed
     move.w  #1,ShipBulletSpeed
     move.w  #1,FollowingBullets
     bra.s   .iniziogioco
-
-    cmpi.w  #3,GameLevel
-    bne.s   .non3
 
 .non3:
     cmpi.w  #4,GameLevel
@@ -296,7 +295,7 @@ mainloop:
     tst.w   Lifes
     bne.s   .nonfinite
     bsr.w   GameOverLoop
-    bra.w   InitLevel
+    bra.w   RestartGame
 
 .nonfinite:
     move.w  #2,ShipStatus
@@ -1451,7 +1450,7 @@ ShipBulletSpeed:
 ; Proiettili nemici
 
 FollowingBullets:
-    dc.w    0
+    dc.w    1
 
 EnemyBullet1Active:
     dc.w    0
