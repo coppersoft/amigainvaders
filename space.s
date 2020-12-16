@@ -23,7 +23,7 @@
 ShipY = 239
 ShipStartX = 120
 ShipBulletTopYMargin = 28
-NumberOfMonsters = 27
+NumberOfMonsters = 1
 
 ExplosionFrameNumber = 43
 ShipInvincibilityFrameNumber = 100
@@ -325,7 +325,8 @@ mainloop:
 
     tst.w   MonstersLeft
     bne.s   .nonfinito
-    bsr.w   MissCompLoop
+    bsr.w   LevelClearedLoop
+    addq.w  #1,GameLevel
     bra.w   InitLevel
 .nonfinito
 
@@ -335,12 +336,17 @@ mainloop:
     rts
 ; ===== FINE LOOP PRINCIPALE
 
-; Loop Missione Completata
-MissCompLoop:
+; Loop Livello Completato
+LevelClearedLoop:
 
 .waitforexplosionend
     bsr.w   CleanExplosionsBackground
     bsr.w   DrawExplosions
+
+    bsr.w   CleanShipBackground
+    bsr.w   DrawShip
+
+    bsr.w   SwitchBuffers
 
     bsr.w   wframe
 
@@ -360,7 +366,7 @@ MissCompLoop:
 
     bsr.w   BlitBob
 
-    bsr.w   wframe
+    bsr.w   SwitchBuffers
 .mc_loop
     btst    #7,$bfe001
     bne.s   .mc_loop
