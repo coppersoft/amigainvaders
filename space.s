@@ -23,7 +23,7 @@
 ShipY = 239
 ShipStartX = 120
 ShipBulletTopYMargin = 28
-NumberOfMonsters = 1
+NumberOfMonsters = 27
 
 ExplosionFrameNumber = 43
 ShipInvincibilityFrameNumber = 100
@@ -186,7 +186,7 @@ InitLevel:
 
 .iniziogioco
 
-    bsr.w   CopiaPannello
+;    bsr.w   CopiaPannello
     bsr.w   CopiaSfondo
     bsr.w   ShowLifes
 
@@ -319,7 +319,16 @@ mainloop:
 .invincibilitanonfinita
 .noninvincibile
 
+; Fase controllo se almeno uno dei mostri è arrivato in fondo
 
+    bsr.w   CheckMonstersOnBottom
+    tst.w   d2
+    beq.s   .nonarrivati
+
+    bsr.w   GameOverLoop
+    bra.w   RestartGame
+
+.nonarrivati
 
 ; Fase controllo se ho ucciso tutti i mostri
 

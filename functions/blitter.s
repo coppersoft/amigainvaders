@@ -268,17 +268,29 @@ CopiaSfondo:
 
     movem.l d0/d1/a0/a1,-(SP)
 
-    lea     Background+(26*40*5),a0
+    lea     Background,a0
     move.l  draw_buffer,a1
-    add.l   #26*40*5,a1
     move.w  #200,d0
     move.w  #5,d1
     bsr.w   SimpleBlit
     
-    lea     Background+(26*40*5),a0
+    lea     Background,a0
     move.l  view_buffer,a1
-    add.l   #26*40*5,a1
     move.w  #200,d0
+    move.w  #5,d1
+    bsr.w   SimpleBlit
+
+    lea     Background+(200*40*5),a0
+    move.l  draw_buffer,a1
+    add.l   #200*40*5,a1
+    move.w  #55,d0
+    move.w  #5,d1
+    bsr.w   SimpleBlit
+    
+    lea     Background+(200*40*5),a0
+    move.l  view_buffer,a1
+    add.l   #200*40*5,a1
+    move.w  #55,d0
     move.w  #5,d1
     bsr.w   SimpleBlit
 

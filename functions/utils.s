@@ -172,4 +172,25 @@ DrawScore:
 
     rts
 
+; Controllo se almeno un mostro è arrivato al margine
+; in d2 0 se no, 1 se sì
+CheckMonstersOnBottom:
+    lea     Monsters,a0
+    move.l  #0,d2
+.loopmonsters:
+    cmpi.w  #$ffff,(a0)
+    beq.s   .fineloopmonsters
+    addq.w  #2,a0
+    move.w  (a0)+,d0     ; Posizione Y in d0
+    addq.w  #2,a0
+    move.w  (a0)+,d1     ; Vivo o morto in d1
 
+    tst.w   d1
+    beq.s   .loopmonsters   ; Se è morto passo al prossimo
+
+    cmpi.w  #256-32,d0
+    bne.s   .loopmonsters   ; Se non è arrivato al margine passo al prossimo
+    move.w  #1,d2
+
+.fineloopmonsters:
+    rts
