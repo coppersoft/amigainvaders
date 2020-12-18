@@ -28,6 +28,9 @@ NumberOfMonsters = 27
 ExplosionFrameNumber = 43
 ShipInvincibilityFrameNumber = 100
 
+MegaUfoYPosition = 30
+MegaUfoDelay = 4*50
+
     SECTION AmigaInvaders_Code,CODE_C
 
     include "functions/init.s"
@@ -110,6 +113,19 @@ START:
     swap    d0
     move.w  d0,2(a0)
 
+    lea     MegaUfoLeftSpritePointer,a0
+    move.l  #MegaUfoLeftSprite,d0
+
+    move.w  d0,6(a0)
+    swap    d0
+    move.w  d0,2(a0)
+
+    lea     MegaUfoRightSpritePointer,a0
+    move.l  #MegaUfoRightSprite,d0
+
+    move.w  d0,6(a0)
+    swap    d0
+    move.w  d0,2(a0)
 
     ; Setto la copperlist, ovviamente DOPO aver disabilitato gli interrupt se no il SO potrebbe interferire
 
@@ -217,6 +233,7 @@ mainloop:
 ; Gestione mostri
 
     bsr.w   UpdateMonstersPositions
+    bsr.w   UpdateMegaUfo
 
 ; Gestione Ship, questo può stare ovunque.
 
@@ -1049,6 +1066,44 @@ DrawShipBullet:
 
 ; ---------------------------
 
+; Routine per la gestione del megaufo
+UpdateMegaUfo:
+    tst.w   MegaUfoMoving               ; Se si sta muovendo, continuo a muoverlo
+    bne.s   .ismoving
+
+    addq.w  #1,MegaUfoTimer             ; Altrimento aumento il timer
+    cmpi.w  #MegaUfoDelay,MegaUfoTimer  ; Se è il momento che si muova...
+    bne.s   .exit
+    move.w  #1,MegaUfoMoving            ; Lo setto
+.ismoving:
+    addq.w  #1,MegaUfoXposition
+
+    cmpi.w  #320,MegaUfoXposition       ; E' arrivato al margine destro?
+    bne.s   .update                       ; Se no non resetta
+
+    move.w  #0,MegaUfoMoving
+    move.w  #-32,MegaUfoXposition
+    move.w  #0,MegaUfoTimer
+
+.update:
+    lea     MegaUfoLeftSprite,a1
+    move.w  #MegaUfoYPosition,d0
+    move.w  MegaUfoXposition,d1
+    move.w  #10,d2
+    bsr.w   PointSprite
+
+    lea     MegaUfoRightSprite,a1
+    move.w  #MegaUfoYPosition,d0
+    move.w  MegaUfoXposition,d1
+    add.w   #16,d1
+    move.w  #10,d2
+    bsr.w   PointSprite
+
+
+
+.exit
+    rts
+; ---------------------------
 ;
 ; Routine per il waitraster 
 ; Aspetta la rasterline in d0.w , modifica d0-d2/a0
@@ -1161,26 +1216,28 @@ bplane_modulo = (320/16)*4
 ; e così via per gli altri 7: http://amiga-dev.wikidot.com/hardware:sprxpth
 
 ; Sprite 0 proiettile astronave
-; Sprite 5 e 6 proiettili nemici
+; Sprite 4 e 5 proiettili nemici
 ShipBulletSpritePointer:
-	dc.w $120,0
+	dc.w $120,0     ;0
 	dc.w $122,0
 
-	dc.w $124,0
+	dc.w $124,0     ;1
 	dc.w $126,0
-	dc.w $128,0
+	dc.w $128,0     ;2
 	dc.w $12a,0
-	dc.w $12c,0
+	dc.w $12c,0     ;3
 	dc.w $12e,0
 EnemyBullet1SpritePointer:
-	dc.w $130,0
+	dc.w $130,0     ;4
 	dc.w $132,0
 EnemyBullet2SpritePointer:
-	dc.w $134,0
+	dc.w $134,0     ;5
 	dc.w $136,0
-	dc.w $138,0
+MegaUfoLeftSpritePointer:
+	dc.w $138,0     ;6
 	dc.w $13a,0
-	dc.w $13c,0
+MegaUfoRightSpritePointer:
+	dc.w $13c,0     ;7
 	dc.w $13e,0
 
 
@@ -1439,6 +1496,15 @@ MonstersDirectionCounter:
 MonstersLeft:
     dc.w    NumberOfMonsters
 
+; MegaUfo
+MegaUfoXposition:
+    dc.w    -32
+MegaUfoTimer:
+    dc.w    0
+MegaUfoMoving:
+    dc.w    0
+
+
 Score:
     dc.w    0
 ScoreStr:
@@ -1568,6 +1634,33 @@ EnemyBulletSprite2:
 	dc.w	$7000,$0000
     dc.w    0,0
 
+MegaUfoLeftSprite:
+    dc.w    $0,$0	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
+    dc.w	$0000,$00ff
+	dc.w	$0000,$07ff
+	dc.w	$0000,$1fff
+	dc.w	$0444,$3ddd
+	dc.w	$0000,$7999
+	dc.w	$0000,$ffff
+	dc.w	$0000,$ffff
+	dc.w	$ffff,$0000
+	dc.w	$1f07,$0000
+	dc.w	$0e03,$0000
+    dc.w    0,0
+
+MegaUfoRightSprite:
+    dc.w    $0,$0	;Vstart.b,Hstart/2.b,Vstop.b,%A0000SEH
+	dc.w	$0000,$ff00
+	dc.w	$0000,$ffe0
+	dc.w	$0000,$fff8
+	dc.w	$4440,$dddc
+	dc.w	$0000,$999e
+	dc.w	$0001,$fffe
+	dc.w	$0007,$fff8
+	dc.w	$ffff,$0000
+	dc.w	$e0f8,$0000
+	dc.w	$c070,$0000
+    dc.w    0,0
 
 NullSpr:
 	dc.w $2a20,$2b00
