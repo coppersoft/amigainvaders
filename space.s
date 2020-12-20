@@ -23,7 +23,7 @@
 ShipY = 239
 ShipStartX = 120
 ShipBulletTopYMargin = 28
-NumberOfMonsters = 27
+NumberOfMonsters = 1
 
 ExplosionFrameNumber = 43
 ShipInvincibilityFrameNumber = 100
@@ -159,6 +159,7 @@ InitLevel:
     move.w  #NumberOfMonsters,MonstersLeft
 
     move.w  #0,ShipStatus
+    move.w  #0,MegaUfoTimer
     
 ; Stabilisco il livello di difficoltà
 
@@ -257,6 +258,8 @@ mainloop:
 ; CheckcollisionsWithMonsters cancella il mostro dallo schermo e inserisce
 ; una nuova esplosione nella lista
     bsr.w   CheckCollisionsWithMonsters
+
+    bsr.w   CheckCollisionsWithMegaUfo
 
 ; Controllo collisioni proiettili nemici con l'astronave
 ; Se è in stato esplosione o invincibile non controlla
@@ -825,7 +828,46 @@ CheckCollisionsWithMonsters:
     rts
 
 ; --------------
+CheckCollisionsWithMegaUfo:
 
+    tst.w   MegaUfoMoving
+    beq.s   .exit
+
+    move.w  ShipBulletX,d0
+    move.w  ShipBulletY,d1
+    move.w  MegaUfoXposition,d2
+    move.w  #MegaUfoYPosition,d3
+
+    move.w  #(4/2)+(32/2),d4
+    move.w  #(4/2)+(10/2),d5
+
+    bsr.w   BoundaryCheck
+    tst.w   d0
+    beq.s   .exit
+
+    move.w  MegaUfoXposition,d0
+    move.w  #MegaUfoYPosition,d1
+    bsr.w   AddExplosion
+
+    move.w  MegaUfoXposition,d0
+    add.w   #16,d0
+    move.w  #MegaUfoYPosition,d1
+    bsr.w   AddExplosion
+
+    bsr.w   ResetMegaUfo
+    bsr.w   DisableShipBullet
+    bsr.w   PointMegaUfo
+
+    add.w   #100,Score
+    bsr.w   DrawScore
+
+.exit:
+    rts
+
+
+
+
+; -------------
 
 DrawMonsters:
     
@@ -1081,11 +1123,21 @@ UpdateMegaUfo:
     cmpi.w  #320,MegaUfoXposition       ; E' arrivato al margine destro?
     bne.s   .update                       ; Se no non resetta
 
+    bsr.w   ResetMegaUfo
+
+.update:
+    bsr.w   PointMegaUfo
+
+.exit
+    rts
+
+ResetMegaUfo:
     move.w  #0,MegaUfoMoving
     move.w  #-32,MegaUfoXposition
     move.w  #0,MegaUfoTimer
+    rts
 
-.update:
+PointMegaUfo:
     lea     MegaUfoLeftSprite,a1
     move.w  #MegaUfoYPosition,d0
     move.w  MegaUfoXposition,d1
@@ -1098,11 +1150,8 @@ UpdateMegaUfo:
     add.w   #16,d1
     move.w  #10,d2
     bsr.w   PointSprite
-
-
-
-.exit
     rts
+
 ; ---------------------------
 ;
 ; Routine per il waitraster 
