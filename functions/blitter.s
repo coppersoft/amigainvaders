@@ -111,7 +111,7 @@ BlitBob:
     move.l  a0,$dff050          ; Setto la sorgente su BLTAPTH
     move.l  a1,$dff04c          ; Setto la maschera su BLTBPTH
 
-    mulu.w  #40,d1              ; Scendo di 40 byte per ogni posizione Y
+    mulu.w  #44,d1              ; Scendo di 44 byte per ogni posizione Y
     mulu.w  d4,d1               ; Per il numero dei bitplane
     add.l   d0,d1               ; Gli aggiungo i byte di scostamento a destra della posizione X
     add.l   d1,a2               ; Offset con l'inizio dei bitplane
@@ -122,8 +122,8 @@ BlitBob:
     ; Calcolo moduli
 
     lsl.l   #1,d2               ; Moltiplico d2 per due, per ottenere i byte della larghezza
-    move.l  #40,d6              ; 40 in d6 (numero di byte per ogni riga)
-    sub.l   d2,d6               ; 40 - d2*2 e trovo il modulo
+    move.l  #44,d6              ; 44 in d6 (numero di byte per ogni riga)
+    sub.l   d2,d6               ; 44 - d2*2 e trovo il modulo
 
     move.w  #0,$dff064          ; Modulo zero per la sorgente BLTAMOD
     move.w  #0,$dff062          ; Modulo zero per la sorgente maschera BLTBMOD

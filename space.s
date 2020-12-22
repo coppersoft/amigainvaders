@@ -408,8 +408,9 @@ GameOverLoop:
     lea     GameOverMask,a1
     move.l  view_buffer,a2
 
-    move.w  #104,d0
+    move.w  #96,d0
     move.w  #98,d1
+ 
     move.w  #7,d2
     move.w  #61,d3
     move.w  #5,d4
