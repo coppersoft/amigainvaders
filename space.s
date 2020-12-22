@@ -3,6 +3,8 @@
 ;    a space invaders game for Commodore Amiga, written in 68000 assembly
 ;    for the Retro Programmers Inside (RPI) gamedev competition.
 
+;    AMIGA WILL NEVER DIE!!!!!
+
 ;    Copyright (C) 2020 - Lorenzo Di Gaetano <lorenzodigaetano@yahoo.it>
 
 ;    This program is free software: you can redistribute it and/or modify
@@ -23,7 +25,7 @@
 ShipY = 239
 ShipStartX = 120
 ShipBulletTopYMargin = 28
-NumberOfMonsters = 1
+NumberOfMonsters = 27
 
 ExplosionFrameNumber = 43
 ShipInvincibilityFrameNumber = 100
@@ -210,7 +212,7 @@ InitLevel:
     bsr.w   DrawScore
 
 ; Copio le posizioni iniziali dei mostri
-    move.w  #(4*NumberOfMonsters)-1,d0                    ; 4 word per 21 mostri
+    move.w  #(4*NumberOfMonsters)-1,d0                    ; 4 word per 27 mostri
 
     lea     MonstersStartPositions,a0
     lea     Monsters,a1
