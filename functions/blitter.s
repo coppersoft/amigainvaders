@@ -41,7 +41,7 @@ BlitBob16:
     move.l  a0,$dff050          ; Setto la sorgente su BLTAPTH
     move.l  a1,$dff04c          ; Setto la maschera su BLTBPTH
 
-    mulu.w  #200,d1              ; Scendo di 40 byte per ogni posizione Y
+    mulu.w  #44*5,d1              ; Scendo di 44*5 byte per ogni posizione Y
     add.l   d0,d1               ; Gli aggiungo i byte di scostamento a destra della posizione X
     add.l   d1,a2               ; Offset con l'inizio dei bitplane
     add.l   d1,a3               ; In destinazione e background
@@ -53,8 +53,8 @@ BlitBob16:
 
     move.w  #0,$dff064          ; Modulo zero per la sorgente BLTAMOD
     move.w  #0,$dff062          ; Modulo zero per la sorgente maschera BLTBMOD
-    move.w  #36,$dff060          ; Modulo per il canale C con lo sfondo BLTCMOD
-    move.w  #36,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
+    move.w  #40,$dff060          ; Modulo per il canale C con lo sfondo BLTCMOD
+    move.w  #40,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
 
     lsl.w   #6,d3
     add.w   #2,d3
