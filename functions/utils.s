@@ -121,7 +121,7 @@ ShowLifes:
 
 ; Routine per la stampa del punteggio
 ; CPU based, non blitter
-ScoreStart = (40*10*5)+33
+ScoreStart = (44*10*5)+33
 
 DrawScore:
 
@@ -163,8 +163,8 @@ DrawScore:
 
     move.b  (a3),(a1)
     move.b  (a3)+,(a2)
-    add.l   #40,a1              ; Equivalente del modulo del blitter
-    add.l   #40,a2
+    add.l   #44,a1              ; Equivalente del modulo del blitter
+    add.l   #44,a2
     dbra    d1,.drawsingledigitloop
 
     addq.l  #1,d2               ; Passo alla prossima cifra
