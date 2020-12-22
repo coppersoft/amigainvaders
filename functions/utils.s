@@ -102,7 +102,7 @@ PuntaBP:
     move.w  d0,2(a0) 
     swap    d0
     addq.l  #8,a0
-    addi.l  #40,d0
+    addi.l  #44,d0
     dbra    d1,PuntaBP
 
     movem.l (SP)+,d0-d1/a0

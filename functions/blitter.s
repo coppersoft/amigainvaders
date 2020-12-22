@@ -175,7 +175,7 @@ SimpleBlit:
     
     mulu.w  d1,d0         ; Moltiplico il numero di righe da copiare per i bitplane
     lsl.w   #6,d0
-    addi.w  #20,d0        ; 320 pixel = 20 word in bltsize
+    addi.w  #22,d0        ; 352 pixel = 22 word in bltsize
 
     move.w  d0,$dff058  ; Dimensioni e blittata
     rts
@@ -280,16 +280,16 @@ CopiaSfondo:
     move.w  #5,d1
     bsr.w   SimpleBlit
 
-    lea     Background+(200*40*5),a0
+    lea     Background+(200*44*5),a0
     move.l  draw_buffer,a1
-    add.l   #200*40*5,a1
+    add.l   #200*44*5,a1
     move.w  #55,d0
     move.w  #5,d1
     bsr.w   SimpleBlit
     
-    lea     Background+(200*40*5),a0
+    lea     Background+(200*44*5),a0
     move.l  view_buffer,a1
-    add.l   #200*40*5,a1
+    add.l   #200*44*5,a1
     move.w  #55,d0
     move.w  #5,d1
     bsr.w   SimpleBlit

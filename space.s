@@ -1246,8 +1246,8 @@ Copper:
 
 bplane_modulo = (320/16)*4
 
-    dc.w    $108,40*4          ; BPLxMOD: http://amiga-dev.wikidot.com/hardware:bplxmod  - Modulo interleaved
-    dc.w    $10a,40*4
+    dc.w    $108,4+(44*4)          ; BPLxMOD: http://amiga-dev.wikidot.com/hardware:bplxmod  - Modulo interleaved
+    dc.w    $10a,4+(44*4)
 
 
 ; Palette
@@ -1312,10 +1312,10 @@ Bplpointers:
 
     EVEN
 Bitplanes1:
-    dcb.b   (40*256)*5,0
+    dcb.b   (44*256)*5,0
 ;    incbin "gfx/Back.raw"
 Bitplanes2:
-    dcb.b   (40*256)*5,0
+    dcb.b   (44*256)*5,0
 ;    incbin "gfx/Back.raw"
 
 view_buffer:
