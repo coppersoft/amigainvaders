@@ -205,7 +205,6 @@ InitLevel:
 
 .iniziogioco
 
-;    bsr.w   CopiaPannello
     bsr.w   CopiaSfondo
     bsr.w   ShowLifes
 
