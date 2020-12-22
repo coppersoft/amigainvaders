@@ -194,7 +194,7 @@ CleanShipBackground:
 
     move.l  draw_buffer,a0
 
-    add.l   #ShipY*5*40,a0         
+    add.l   #ShipY*5*44,a0         
 
 ;    add.l   d0,a0
 
@@ -212,11 +212,9 @@ CleanShipBackground:
 
     move.l  a0,$dff054          ; Destinazione in BLTDPTH
 
-;    move.w  #36,$dff066         ; Modulo canale Destinazione D
     move.w  #0,$dff066         ; Modulo canale Destinazione D
 
-    move.w  #((16*5)*64)+20,$dff058      ; BLTSIZE
-;    move.w  #((16*5)*64)+2,$dff058      ; BLTSIZE
+    move.w  #((16*5)*64)+22,$dff058      ; BLTSIZE
 
     rts
 
