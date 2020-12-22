@@ -235,7 +235,7 @@ CleanBackground:
     btst    #14-8,$dff002
     bne.s   .waitblit           ; Aspetto il blitter che finisce
 
-    mulu.w  #200,d1         ; Giù per 5 bitplane
+    mulu.w  #44*5,d1         ; Giù per 5 bitplane
 
     lsr.l   #4,d0           ; Divido per 16 prendendo le word di cui spostarmi a destra
     lsl.l   #1,d0           ; Rimoltiplico per due per ottenere i byte
@@ -254,10 +254,10 @@ CleanBackground:
     move.l  a1,$dff050    ; Setto la sorgente su BLTAPTH
     move.l  a2,$dff054    ; Setto la destinazione su BLTDPTH
 
-    move.w  #4,$dff064    ; Modulo per la sorgente BLTAMOD
-    move.w  #4,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
+    move.w  #40,$dff064    ; Modulo per la sorgente BLTAMOD
+    move.w  #40,$dff066    ; Setto il modulo per il canale D di destiazione BLTDMOD
 
-    move.w  #((16*5)*64)+18,$dff058
+    move.w  #((16*5)*64)+2,$dff058
 
     rts
 
