@@ -41,7 +41,7 @@ BoundaryCheck:
 DecToStr:
 
 ;	move.l	d0,d1
-;	divu.l	#100000,d1
+;	divu.l	#100000,d1          ; divu e mulu con operandi a 32 bit solo dal 68020 in su...
 ;	move.b	d1,(a0)+
 ;	mulu.l	#100000,d1
 ;	sub.l	d1,d0

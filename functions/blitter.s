@@ -1,4 +1,4 @@
-; Funzione di blittaggio con cookie cut semplicifata e ottimizzata per bob larghi 16+16 pixel (2 word)
+; Funzione di blittaggio con cookie cut semplicifata e ottimizzata per bob larghi 16+16 pixel (2 word inclusa la extra word per lo shift)
 
 ; a0    Indirizzo Bob
 ; a1    Indirizzo Maschera
@@ -67,7 +67,7 @@ BlitBob16:
 
 ; ---------------------------------------------------------------
 
-; Funzione di blitting universale con cookie cut
+; Funzione di blitting universale con cookie cut e margine destro di 2 word
 
 ; a0    Indirizzo Bob
 ; a1    Indirizzo Maschera
@@ -183,7 +183,7 @@ SimpleBlit:
 ; --------------------------------------------------------------------
 
 ; Funzione per pulire lo sfondo dell'astronave, solo canale D e minterm a 0
-; Modifica: cancello l'intera striscia per evitare problemi di "scie" di 2 pixe
+; Modifica: cancello l'intera striscia per evitare problemi di "scie" di 2 pixel
 ; dovuti al passaggio da un buffer all'altro nello switch del double buffering
 
 CleanShipBackground:
