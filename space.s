@@ -25,7 +25,7 @@
 ShipY = 239
 ShipStartX = 120
 ShipBulletTopYMargin = 28
-NumberOfMonsters = 27
+NumberOfMonsters = 1
 
 ExplosionFrameNumber = 43
 ShipInvincibilityFrameNumber = 100
@@ -391,10 +391,10 @@ LevelClearedLoop:
     lea     LivelloCompletatoMask,a1
     move.l  draw_buffer,a2
 
-    move.w  #48,d0
+    move.w  #84,d0
     move.w  #112,d1
-    move.w  #14,d2
-    move.w  #31,d3
+    move.w  #10,d2
+    move.w  #26,d3
     move.w  #5,d4
 
     bsr.w   BlitBob
@@ -1363,9 +1363,9 @@ ShipBulletMask:
 ; Messaggi
 
 LivelloCompletato:
-    incbin "gfx/MissComp.raw"
+    incbin "gfx/LivComp.raw"
 LivelloCompletatoMask:
-    incbin "gfx/MissCompMask.raw"
+    incbin "gfx/LivCompMask.raw"
 GameOver:
     incbin "gfx/GameOver.raw"
 GameOverMask:
