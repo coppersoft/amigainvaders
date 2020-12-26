@@ -203,6 +203,9 @@ InitLevel:
 
 ; TODO: Mettere qui il messaggio di gioco finito
 
+;    move.w  #14,d2     // Larghezza in word
+;    move.w  #31,d3     // Altezza
+
 .iniziogioco
 
     bsr.w   CopiaSfondo
@@ -384,8 +387,8 @@ LevelClearedLoop:
     cmpi.w  #$ffff,(a0)
     bne.s   .waitforexplosionend
 
-    lea     MissioneCompletata,a0
-    lea     MissioneCompletataMask,a1
+    lea     LivelloCompletato,a0
+    lea     LivelloCompletatoMask,a1
     move.l  draw_buffer,a2
 
     move.w  #48,d0
@@ -1359,9 +1362,9 @@ ShipBulletMask:
 
 ; Messaggi
 
-MissioneCompletata:
+LivelloCompletato:
     incbin "gfx/MissComp.raw"
-MissioneCompletataMask:
+LivelloCompletatoMask:
     incbin "gfx/MissCompMask.raw"
 GameOver:
     incbin "gfx/GameOver.raw"
