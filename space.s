@@ -193,9 +193,24 @@ InitLevel:
 
 .giocofinito
 
+.waitforexplosionend
+    bsr.w   CleanExplosionsBackground
+    bsr.w   DrawExplosions
+
+    bsr.w   CleanShipBackground
+    bsr.w   DrawShip
+
+    bsr.w   SwitchBuffers
+
+    bsr.w   wframe
+
+    lea     ExplosionsList,a0
+    cmpi.w  #$ffff,(a0)
+    bne.s   .waitforexplosionend
+
     lea     MissioneCompletata,a0
     lea     MissioneCompletataMask,a1
-    move.l  view_buffer,a2
+    move.l  draw_buffer,a2
 
     move.w  #48,d0
     move.w  #112,d1
@@ -206,7 +221,7 @@ InitLevel:
 
     bsr.w   BlitBob
 
-;    bsr.w   SwitchBuffers
+    bsr.w   SwitchBuffers
 
 .go_loop:
     btst    #7,$bfe001
