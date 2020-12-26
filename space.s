@@ -171,7 +171,7 @@ InitLevel:
     move.w  #2,ShipSpeed
     move.w  #2,ShipBulletSpeed
     move.w  #0,FollowingBullets
-    bra.s   .iniziogioco
+    bra.w   .iniziogioco
 
 .non1:
     cmpi.w  #2,GameLevel
@@ -180,26 +180,41 @@ InitLevel:
     move.w  #2,ShipSpeed
     move.w  #2,ShipBulletSpeed
     move.w  #1,FollowingBullets
-    bra.s   .iniziogioco
+    bra.w   .iniziogioco
 
 .non2:
     cmpi.w  #3,GameLevel
-    bne.s   .non3
+    bne.s   .giocofinito
 
     move.w  #2,ShipSpeed
     move.w  #1,ShipBulletSpeed
     move.w  #1,FollowingBullets
-    bra.s   .iniziogioco
-
-.non3:
-    cmpi.w  #4,GameLevel
-    bne.s   .giocofinito
-
-    move.w  #1,ShipSpeed
-    move.w  #1,FollowingBullets
-    move.w  #1,ShipBulletSpeed
+    bra.w   .iniziogioco
 
 .giocofinito
+
+    lea     MissioneCompletata,a0
+    lea     MissioneCompletataMask,a1
+    move.l  view_buffer,a2
+
+    move.w  #48,d0
+    move.w  #112,d1
+ 
+    move.w  #14,d2
+    move.w  #31,d3
+    move.w  #5,d4
+
+    bsr.w   BlitBob
+
+;    bsr.w   SwitchBuffers
+
+.go_loop:
+    btst    #7,$bfe001
+    bne.s   .go_loop
+
+    bra.w   RestartGame
+
+
 
 ; TODO: Mettere qui il messaggio di gioco finito
 
@@ -358,8 +373,8 @@ mainloop:
 
     tst.w   MonstersLeft
     bne.s   .nonfinito
-    bsr.w   LevelClearedLoop
     addq.w  #1,GameLevel
+    bsr.w   LevelClearedLoop
     bra.w   InitLevel
 .nonfinito
 
@@ -371,6 +386,9 @@ mainloop:
 
 ; Loop Livello Completato
 LevelClearedLoop:
+
+    cmpi.w  #4,GameLevel
+    beq.s   .fine_lcloop            ; Se ho finito il gioco salto la visualizzazione
 
 .waitforexplosionend
     bsr.w   CleanExplosionsBackground
@@ -403,6 +421,8 @@ LevelClearedLoop:
 .mc_loop
     btst    #7,$bfe001
     bne.s   .mc_loop
+
+.fine_lcloop:
 
     rts
 
@@ -1366,6 +1386,12 @@ LivelloCompletato:
     incbin "gfx/LivComp.raw"
 LivelloCompletatoMask:
     incbin "gfx/LivCompMask.raw"
+
+MissioneCompletata:
+    incbin "gfx/MissComp.raw"
+MissioneCompletataMask:
+    incbin "gfx/MissCompMask.raw"
+
 GameOver:
     incbin "gfx/GameOver.raw"
 GameOverMask:
