@@ -25,7 +25,7 @@
 ShipY = 239
 ShipStartX = 120
 ShipBulletTopYMargin = 28
-NumberOfMonsters = 1
+NumberOfMonsters = 27
 
 ExplosionFrameNumber = 43
 ShipInvincibilityFrameNumber = 100
@@ -136,6 +136,7 @@ START:
 RestartGame:
     move.w  #3,Lifes
     move.w  #1,GameLevel
+    move.w  #0,Score
 
 InitLevel:
 
