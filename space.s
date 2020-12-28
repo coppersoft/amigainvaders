@@ -98,7 +98,8 @@ START:
 	bsr.w	P61_Init
 	movem.l	(SP)+,d0-d7/a0-a6
 
-
+    move.l	BaseVBR,a4
+	move.l	#INTERRUPT,$6c(a4)	; Punto il mio interrupt
 
 
     ; Setto lo spritepointer (dff120) nello stesso modo fatto per i bitplane
@@ -1265,6 +1266,22 @@ Waity1:
 	CMP.L	D2,D0		; aspetta la linea $130 (304)
 	BNE.S	Waity1
     rts
+
+
+INTERRUPT:
+	btst.b	#5,$dff01f
+	beq.s	Novertb
+	
+	movem.l	d0-d7/a0-a6,-(sp)
+
+	lea	    $dff000,a6
+	bsr.w	P61_Music		
+
+	movem.l	(sp)+,d0-d7/a0-a6
+
+Novertb:
+	move.w	#%1110000,$dff09c
+	rte
 
 ; *************** FINE ROUTINE UTILITY
 
