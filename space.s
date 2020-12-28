@@ -33,8 +33,10 @@ ShipInvincibilityFrameNumber = 100
 MegaUfoYPosition = 30
 MegaUfoDelay = 4*50
 
-    SECTION AmigaInvaders_Code,CODE_C
 
+
+    SECTION AmigaInvaders_Code,CODE_C
+    include "music/P61.conf"
     include "functions/init.s"
 
 
@@ -470,7 +472,8 @@ GameOverLoop:
     include "functions/blitter.s"
     include "functions/sprite.s"
     include "functions/utils.s"
-
+    include "music/P6112-Play.s"
+    
 ; *************** INIZIO ROUTINE UTILITY
 
 CheckCollisionsWithShip:
