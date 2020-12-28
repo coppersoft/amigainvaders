@@ -89,7 +89,14 @@ START:
 	;move.w	#$c00,$dff106		; Disattiva l'AGA
 	;move.w	#$11,$dff10c		; Disattiva l'AGA
 
-
+	movem.l	d0-d7/a0-a6,-(SP)
+	moveq	#0,d0		; Timer Detection: Autodetect
+	lea	    Music,a0	; Indirizzo del modulo in a0
+	lea	    $dff000,a6	; Ricordiamoci il $dff000 in a6!
+	sub.l	a1,a1		; I samples non sono a parte, mettiamo zero
+	sub.l	a2,a2		; no samples -> modulo non compattato
+	bsr.w	P61_Init
+	movem.l	(SP)+,d0-d7/a0-a6
 
 
 
@@ -473,7 +480,7 @@ GameOverLoop:
     include "functions/sprite.s"
     include "functions/utils.s"
     include "music/P6112-Play.s"
-    
+
 ; *************** INIZIO ROUTINE UTILITY
 
 CheckCollisionsWithShip:
@@ -1680,6 +1687,9 @@ ExplosionFramesMasks:
     incbin  "gfx/Exp7Mask.raw"
     incbin  "gfx/Exp8Mask.raw"
     incbin  "gfx/Exp9.raw"
+
+Music:
+    incbin  "music/P61.trackdj"
 
 ExplosionFramesList:
     dc.w    0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,5,5,6,6,6,6,6,7,7,7,7,7,8,8,8,$ffff
