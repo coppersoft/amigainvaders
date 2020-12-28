@@ -33,6 +33,32 @@ init:
 
 ; ===== FINE BLOCCO DEL SISTEMA OPERATIVO
 
+; Per utilizzare gli interrupt per la musica devo ottenere il Vector Base Register
+; Nel 68000 è sempre zero, ma nei successivi può non esserlo
+
+    btst.b  #0,$129(a6)         ; Controllo se sono su 68010 o superiore
+    beq.s   foundvbr           ; E' un 68000, non mi serve trovare il VBR
+    lea     FindVBR,a5          ; Metto in a5 il codice da chiamare in modalità supervisor
+    jsr     -$1e(a6)            ; LvoSupervisor
+
+    bra.s   foundvbr
+
+FindVBR:
+    movem.l a0-a1,-(SP)
+    dc.l    $4e7a9801           ; movec vbr,a1 (68010+ messo in esadec per evitare di settare il compilatore a 68000+)
+    lea     BaseVBR,a0
+    move.l  a1,(a0)             ; Salvo il VBR in BaseVBR
+    movem.l (SP)+,a0-a1
+    rte     
+
+
+
+foundvbr:
+    move.l  BaseVBR,a0
+    move.l  $6c(a0),OldInt6c    ; Mi salvo l'indirizzo del vecchio interrupt 6c, quello che uso per la musica
+
+
+
 ; Mi salvo nello stack i registri usati per salvare lo stato del SO 
 
     movem.l	d3-d5,-(SP)
@@ -58,8 +84,19 @@ exit:
                                 ; http://amiga-dev.wikidot.com/hardware:intenar
     move    d5,$dff09a          ; Ripristino l'INTENA come era prima di disattivare tutti gli interrupt
 
+; interrupt
+
+    move.l  BaseVBR,a0
+    move.l  OldInt6c,$6c(a0)    ; Ripristino il vecchio interrupt
+
+
     moveq   #0,d0               ; No error code al sistema operativo
 
     rts
 
 ; ===== FINE RIPRISTINO SISTEMA OPERATIVO E USCITA
+
+BaseVBR:
+    dc.l    0
+OldInt6c:
+    dc.l    0
