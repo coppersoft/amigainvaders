@@ -65,7 +65,7 @@ START:
 
     move.w  #$7fff,$dff096          ; Disabilito tutti i bit in DMACON
 
-; Abilito copper, bitplanes
+; Abilito copper, bitplanes, sprite ecc...
 
 ; DMACON dff096 DMA Control write (clear or set) http://amiga-dev.wikidot.com/hardware:dmaconr
 
