@@ -20,7 +20,7 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
+; Costanti
 
 ShipY = 239
 ShipStartX = 120
@@ -36,6 +36,7 @@ MegaUfoDelay = 4*50
 
 
     SECTION AmigaInvaders_Code,CODE_C
+
     include "music/P61.conf"
     include "functions/init.s"
 
@@ -44,8 +45,8 @@ MegaUfoDelay = 4*50
 
 START:
 
-; E' meglio aspettare l'end of frame prima di smaneggiare con questi registri, in teoria dovrebbe sistemare lo sprite flickering
-; ma a me non funziona proprio
+; E' meglio aspettare l'end of frame prima di smaneggiare con questi registri
+
     move.w  #$138,d0
     bsr.w   WaitRaster
     
@@ -59,17 +60,9 @@ START:
 
     move.w  #$7fff,$dff096          ; Disabilito tutti i bit in DMACON
 
-; Abilito per lo meno il copper, bitplanes
+; Abilito copper, bitplanes
 
 ; DMACON dff096 DMA Control write (clear or set) http://amiga-dev.wikidot.com/hardware:dmaconr
-;    move.w  #$87c0,$dff096          ; No sprite => 87c0 è 1000011111000000
-                                    ; Il bit 5 è a 0 => Sprite Enable a 0
-                                    ; Il bit 6 è a 1 => Blitter DMA Enable
-                                    ; Il bit 7 è a 1 => Coprocessor DMA Enable
-                                    ; Il bit 8 è a 1 => Bitplane DMA Enable
-                                    ; Il bit 9 è a 1 => Enable all DMA Below ???
-                                    ; Il bit 10 è a 1 => Blitter DMA priority, evita che la CPU rubi dei cicli mentre il blitter gira)
-                                    ; Il bit 15 è a 1 => SET/CLR , stabilisce se i bit a 1 settano o cancellano
 
     move.w  #$87e0,$dff096      ; DMACON (write) 1000011111100000
                                 ; 15 - Set Clear bit a 1 => i bit a 1 settano
@@ -79,11 +72,8 @@ START:
                                 ; 7  - COPEN  (Coprocessor DMA Enable)
                                 ; 6  - BLTEN  (Blitter DMA enable)
                                 ; 5  - SPREN  (Sprite DMA enable)
-                                
-; 1000011111000000 = 87C0   => Senza sprite ma con blipri a 1
-; 1000001111000000 = 83C0   => Senza sprite e con blitpri a 0
 
-    ;move.w  #$83C0,$dff096
+; Inizializzo la routine P61 per la musica
 
 	movem.l	d0-d7/a0-a6,-(SP)
 	moveq	#0,d0		; Timer Detection: Autodetect
@@ -98,9 +88,13 @@ START:
     move.w	#0,$1fc(a5)		    ; Disattiva l'AGA
 	move.w	#$c00,$106(a5)		; Disattiva l'AGA
 	move.w	#$11,$10c(a5)		; Disattiva l'AGA
-    move.w	#%1110000000100000,$09a(a5)	; Setto INTENA
+    move.w	#%1110000000100000,$09a(a5)	; Setto INTENA, interrupt enable bits.
+                                        ; 15: Bit set/clr, come per DMACON
+                                        ; 14: Master interrupt
+                                        ; 13: External interrupt
+                                        ; 5:  VERTB: abilito l'interrupt all'inizio del vblank, per il player musicale
 
-    move.l	BaseVBR,a4
+    move.l	BaseVBR,a4          ; BaseVBR recuperato, se necessario, in init.s
 	move.l	#INTERRUPT,$6c(a4)	; Punto il mio interrupt
 
 
@@ -141,7 +135,7 @@ START:
     swap    d0
     move.w  d0,2(a0)
 
-    ; Setto la copperlist, ovviamente DOPO aver disabilitato gli interrupt se no il SO potrebbe interferire
+    ; Setto la copperlist
 
     move.l  #Copper,$dff080     ; http://amiga-dev.wikidot.com/hardware:cop1lch  (Copper pointer register) E' un long word move perché il registro è una long word
 
@@ -242,12 +236,6 @@ InitLevel:
 
     bra.w   RestartGame
 
-
-
-; TODO: Mettere qui il messaggio di gioco finito
-
-;    move.w  #14,d2     // Larghezza in word
-;    move.w  #31,d3     // Altezza
 
 .iniziogioco
 
@@ -473,7 +461,7 @@ GameOverLoop:
     rts
 
 
-; Includo funzioni utility per blitter, sprite e collisioni
+; Includo funzioni utility per blitter, sprite, collisioni, conversioni e player musicale
     include "functions/blitter.s"
     include "functions/sprite.s"
     include "functions/utils.s"
@@ -700,10 +688,6 @@ UpdateEnemyShoot2:
 .nondisattiva
     rts
 
-
-
-
-
 ; --------------
 
 ; d0 x
@@ -780,8 +764,6 @@ DrawExplosions:
     add.l   d4,a5           ; Punto il fotogramma nella lista dei frame
     move.w  (a5),d4         ; Prendo il numero del fotogramma della grafica
 
-; TODO qui controllare che non sia $ffff
-
     cmpi.w  #$ffff,d4       ; Sono alla fine della lista dei fotogrammi?
     bne.s   .nofinefotogrammi
     sub.l   #4,a4
@@ -792,8 +774,7 @@ DrawExplosions:
 
 .nofinefotogrammi
     add.w   #1,(a4)
-;
-
+    
     mulu.w  #(4*16*5),d4      ; Offset con la grafica bitmap
 
     add.l   d4,a0           ; E vado a prendere la bitmap del fotogramma
@@ -912,9 +893,6 @@ CheckCollisionsWithMegaUfo:
 
 .exit:
     rts
-
-
-
 
 ; -------------
 
@@ -1077,8 +1055,6 @@ DrawShip:
 
 ; --------
 
-
-
 UpdateShipPosition:
     move.w  ShipSpeed,d0
     ; JOY1DAT http://amiga-dev.wikidot.com/hardware:joy0dat
@@ -1170,7 +1146,7 @@ UpdateMegaUfo:
     addq.w  #1,MegaUfoXposition
 
     cmpi.w  #320,MegaUfoXposition       ; E' arrivato al margine destro?
-    bne.s   .update                       ; Se no non resetta
+    bne.s   .update                     ; Se no non resetta
 
     bsr.w   ResetMegaUfo
 
@@ -1222,24 +1198,7 @@ WaitRaster:
     movem.l (SP)+,d0-d2/a0
     rts
 
-
-
-
-
-
 ; -------------------------------------
-
-
-
-; Versione infamia
-WaitVBL:
-.wat
-	cmpi.b	#$FF,$dff006
-	bne.s	.wat
-.wat2:
-	cmpi.b	#$38,$dff006
-	bne.s	.wat2	
-	rts	
 
 wframe:
 	btst #0,$dff005
@@ -1251,23 +1210,11 @@ wframe2:
 	beq.b wframe2
     rts
 
-; Versione corso Randy
-WaitVBL2:
-    
-    lea     $dff000,a5
-    MOVE.L	#$1ff00,d1	; bit per la selezione tramite AND
-	MOVE.L	#$13000,d2	; linea da aspettare = $130, ossia 304
-Waity1:
-	MOVE.L	4(a5),D0	; VPOSR e VHPOSR - $dff004/$dff006
-	AND.L	D1,D0		; Seleziona solo i bit della pos. verticale
-	CMP.L	D2,D0		; aspetta la linea $130 (304)
-	BNE.S	Waity1
-    rts
-
-
 INTERRUPT:
-	btst.b	#5,$dff01f
-	beq.s	Novertb
+	btst.b	#5,$dff01f  ; Si deve testare se l'interrupt è arrivato davvero da un VERTB
+                        ; Perché potrebbe essere lanciato anche da altri eventi
+                        ; Controllo quindi il bit 5 di INTREQR, se è a 0 salto tutto
+	beq.s	Novertb     
 	
 	movem.l	d0-d7/a0-a6,-(sp)
 
@@ -1282,10 +1229,6 @@ Novertb:
 
 ; *************** FINE ROUTINE UTILITY
 
-
-
-
-
 gfxname:
     dc.b    "graphics.library",0
 
@@ -1294,13 +1237,10 @@ gfxname:
 
     EVEN
 
-
-
-
 Copper:
     dc.w    $1fc,0          ; slow fetch mode, per compatibilità con AGA
  
-  ; DMA Display Window: Valori classici di Amiga, non overscan
+   ; DMA Display Window: Valori classici di Amiga, non overscan
    ; Ogni valore esadecimale corrisponde a 2 pixel, quindi ogni volta per esempio che riduciamo la finestra di 16 pixel dobbiamo togliere 8
    ; da $92 e $94
 
@@ -1308,8 +1248,6 @@ Copper:
     dc.w $90,$2cc1      ; Display window stop (bottom right)
     dc.w $92,$38        ; Display data fetch start http://amiga-dev.wikidot.com/hardware:ddfstrt
     dc.w $94,$d0        ; Display data fetch stop
-
-bplane_modulo = (320/16)*4
 
     dc.w    $108,4+(44*4)          ; BPLxMOD: http://amiga-dev.wikidot.com/hardware:bplxmod  - Modulo interleaved
     dc.w    $10a,4+(44*4)
@@ -1372,16 +1310,12 @@ Bplpointers:
     ; per dire al copper che non ci sono più istruzioni in questo frame gli diamo una wait position impossibile
     dc.w    $ffff,$fffe
 
-
-
-
     EVEN
+
 Bitplanes1:
     dcb.b   (44*256)*5,0
-;    incbin "gfx/Back.raw"
 Bitplanes2:
     dcb.b   (44*256)*5,0
-;    incbin "gfx/Back.raw"
 
 view_buffer:
 	dc.l	Bitplanes1	; buffer visualizzato
