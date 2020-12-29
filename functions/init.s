@@ -4,7 +4,6 @@
 
 init:
     ; Dobbiamo salvare la copperlist del sistema operativo, ma lo facciamo con una chiamata alla graphics.library
-    ; (questo non me lo ricordavo, probabilmente stava nel startup.s di Randy
     ; Per aprire una library scrivo
 
     move.l  4.w,a6              ; execbase, il puntatore alla open library è sempre all'indirizzo 4 in memoria
@@ -34,24 +33,22 @@ init:
 ; ===== FINE BLOCCO DEL SISTEMA OPERATIVO
 
 ; Per utilizzare gli interrupt per la musica devo ottenere il Vector Base Register
-; Nel 68000 è sempre zero, ma nei successivi può non esserlo
+; Nel 68000 è sempre zero, ma nei successivi (dal 68010 in poi) può non esserlo
 
     btst.b  #0,$129(a6)         ; Controllo se sono su 68010 o superiore
-    beq.s   foundvbr           ; E' un 68000, non mi serve trovare il VBR
-    lea     FindVBR,a5          ; Metto in a5 il codice da chiamare in modalità supervisor
+    beq.s   foundvbr            ; E' un 68000, non mi serve trovare il VBR
+    lea     FindVBR,a5          ; Altrimenti metto in a5 l'indirizzo del codice da chiamare in modalità supervisor
     jsr     -$1e(a6)            ; LvoSupervisor
 
     bra.s   foundvbr
 
 FindVBR:
     movem.l a0-a1,-(SP)
-    dc.l    $4e7a9801           ; movec vbr,a1 (68010+ messo in esadec per evitare di settare il compilatore a 68000+)
+    dc.l    $4e7a9801           ; movec vbr,a1 (68010+ messo in hex per evitare di settare il compilatore a 68000+)
     lea     BaseVBR,a0
     move.l  a1,(a0)             ; Salvo il VBR in BaseVBR
     movem.l (SP)+,a0-a1
     rte     
-
-
 
 foundvbr:
     move.l  BaseVBR,a0
@@ -79,8 +76,8 @@ exit:
 
     move.l  d4,$dff080          ; Ripristiniamo la copperlist originale del SO
 
-    or      #$c000,d5           ; Setto a 1 il bit più significativo, quello di controllo, RIVEDERE PERCHE' E C000 E NON 8000
-                                ; perché è 1100000000000000, devo riattivare il bit 14 (master interrupt) mettendogli 1 (bit 15 set/clr)
+    or      #$c000,d5           ; Setto a 1 il bit più significativo, quello di controllo
+                                ; è 1100000000000000, devo riattivare il bit 14 (master interrupt) mettendogli 1 (bit 15 set/clr)
                                 ; http://amiga-dev.wikidot.com/hardware:intenar
     move    d5,$dff09a          ; Ripristino l'INTENA come era prima di disattivare tutti gli interrupt
 
