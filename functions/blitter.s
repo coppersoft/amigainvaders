@@ -1,4 +1,5 @@
 ; Funzione di blittaggio con cookie cut semplicifata e ottimizzata per bob larghi 16+16 pixel (2 word inclusa la extra word per lo shift)
+; Con margine destro dello schermo di 2 word
 
 ; a0    Indirizzo Bob
 ; a1    Indirizzo Maschera
@@ -41,7 +42,7 @@ BlitBob16:
     move.l  a0,$dff050          ; Setto la sorgente su BLTAPTH
     move.l  a1,$dff04c          ; Setto la maschera su BLTBPTH
 
-    mulu.w  #44*5,d1              ; Scendo di 44*5 byte per ogni posizione Y
+    mulu.w  #44*5,d1            ; Scendo di 44*5 byte per ogni posizione Y
     add.l   d0,d1               ; Gli aggiungo i byte di scostamento a destra della posizione X
     add.l   d1,a2               ; Offset con l'inizio dei bitplane
     add.l   d1,a3               ; In destinazione e background
@@ -49,12 +50,10 @@ BlitBob16:
     move.l  a3,$dff048          ; Setto lo sfondo su BLTCPTH
     move.l  a2,$dff054          ; Setto la destinazione su BLTDPTH
 
-    ; Moduli per 32 pixel, 4 word
-
     move.w  #0,$dff064          ; Modulo zero per la sorgente BLTAMOD
     move.w  #0,$dff062          ; Modulo zero per la sorgente maschera BLTBMOD
-    move.w  #40,$dff060          ; Modulo per il canale C con lo sfondo BLTCMOD
-    move.w  #40,$dff066          ; Setto il modulo per il canale D di destiazione BLTDMOD
+    move.w  #40,$dff060         ; Modulo per il canale C con lo sfondo BLTCMOD
+    move.w  #40,$dff066         ; Setto il modulo per il canale D di destiazione BLTDMOD
 
     lsl.w   #6,d3
     add.w   #2,d3
@@ -144,9 +143,6 @@ BlitBob:
 
     rts
 
-
-
-
 ; ---------------------------------------------------------------
 
 ; Funzione di copia semplice, senza cookie cut.
@@ -189,14 +185,9 @@ SimpleBlit:
 CleanShipBackground:
     move.w  ShipBobX,d0
 
-;    lsr.l   #4,d0           ; Divido per 16 prendendo le word di cui spostarmi a destra
-;    lsl.l   #1,d0           ; Rimoltiplico per due per ottenere i byte
-
     move.l  draw_buffer,a0
 
     add.l   #ShipY*5*44,a0         
-
-;    add.l   d0,a0
 
     tst     $dff002
 .waitblit
@@ -307,7 +298,6 @@ DrawLifes:
 
 ; Prima pulisco lo sfondo del visualizzatore vite rimaste
 
-;    move.l  draw_buffer,a0
     add.l  #(8*44*5)+2,a0      ; riga 8 seconda word  
 
 ; Cancellazione, quindi shift nullo e solo canale D di destinazione, minterm a 0
