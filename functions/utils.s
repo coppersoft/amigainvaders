@@ -93,7 +93,6 @@ SwitchBuffers:
     ; Setto CINQUE bitplane 
 
     lea     Bplpointers,a0 
-;    move.l  #Bitplanes,d0
 
     moveq   #5-1,d1
 PuntaBP:
