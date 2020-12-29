@@ -1,6 +1,6 @@
 ;    Amiga Invaders
 
-;    a space invaders game for Commodore Amiga, written in 68000 assembly
+;    a space invaders game for Commodore Amiga OCS/ECS, written in 68000 assembly
 ;    for the Retro Programmers Inside (RPI) gamedev competition.
 
 ;    AMIGA WILL NEVER DIE!!!!!
