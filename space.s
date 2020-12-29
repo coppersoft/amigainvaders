@@ -50,8 +50,10 @@ START:
     bsr.w   WaitRaster
     
     move.w  #$7fff,$dff09a           ; Disabilito tutti i bit in INTENA (interrupt enable)
-    move.w  #$7fff,$dff09c          ; (Buona pratica:) Disabilito tutti i bit in INTREQ
-    move.w  #$7fff,$dff09c          ; (Buona pratica:) Disabilito tutti i bit in INTREQ, faccio due volte per renderlo compatibile con A4000 che ha un bug
+
+;   Tolto perché ora mi servono gli interrupt!
+;    move.w  #$7fff,$dff09c          ; (Buona pratica:) Disabilito tutti i bit in INTREQ
+;    move.w  #$7fff,$dff09c          ; (Buona pratica:) Disabilito tutti i bit in INTREQ, faccio due volte per renderlo compatibile con A4000 che ha un bug
 
 ; Per disabilitare tutti i DMA completamente, facciamo qualcosa di simile a quanto fatto qui sopra con gli interrupt
 
@@ -83,12 +85,6 @@ START:
 
     ;move.w  #$83C0,$dff096
 
-
-
-    ;move.w	#0,$dff1fc		; Disattiva l'AGA
-	;move.w	#$c00,$dff106		; Disattiva l'AGA
-	;move.w	#$11,$dff10c		; Disattiva l'AGA
-
 	movem.l	d0-d7/a0-a6,-(SP)
 	moveq	#0,d0		; Timer Detection: Autodetect
 	lea	    Music,a0	; Indirizzo del modulo in a0
@@ -97,6 +93,12 @@ START:
 	sub.l	a2,a2		; no samples -> modulo non compattato
 	bsr.w	P61_Init
 	movem.l	(SP)+,d0-d7/a0-a6
+
+    lea     $dff000,a5
+    move.w	#0,$1fc(a5)		    ; Disattiva l'AGA
+	move.w	#$c00,$106(a5)		; Disattiva l'AGA
+	move.w	#$11,$10c(a5)		; Disattiva l'AGA
+    move.w	#%1110000000100000,$09a(a5)	; Setto INTENA
 
     move.l	BaseVBR,a4
 	move.l	#INTERRUPT,$6c(a4)	; Punto il mio interrupt
@@ -267,13 +269,6 @@ InitLevel:
 ; GAME LOOP
 
     move.l  #0,d0
-;    move.l  #0,d1
-;    move.l  #0,d2
-;    move.l  #0,d3
-;    move.l  #0,d4
-;    move.l  #0,d5
-;    move.l  #0,d6
-;    move.l  #0,d7
 
 mainloop:
 ; Gestione mostri
@@ -406,6 +401,8 @@ mainloop:
 
     btst    #6,$bfe001
     bne     mainloop
+
+    bsr.w   P61_End
 
     rts
 ; ===== FINE LOOP PRINCIPALE
