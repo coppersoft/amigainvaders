@@ -193,3 +193,37 @@ CheckMonstersOnBottom:
 
 .fineloopmonsters:
     rts
+
+; a0:  Palette grezza
+; a1:  Palette copperlist +2
+; d0:  Fotogramma del fade
+; d1:  Numero di colori
+Fade:
+	moveq	#0,d2
+	moveq	#0,d3
+
+	move.w	(a0),d2
+	andi.w	#$000f,d2
+	mulu.w	d0,d2
+	lsr.w	#4,d2
+	andi.w	#$000f,d2
+	move.w	d2,d3
+	
+	move.w	(a0),d2
+	andi.w	#$00f0,d2
+	mulu.w	d0,d2
+	lsr.w	#4,d2
+	andi.w	#$00f0,d2
+	or.w	d2,d3
+	
+	move.w	(a0)+,d2
+	andi.w	#$0f00,d2
+	mulu.w	d0,d2
+	lsr.w	#4,d2
+	andi.w	#$0f00,d2
+	or.w	d2,d3
+	
+	move.w	d3,(a1)
+	addq.w	#4,a1
+	dbra	d1,Fade
+	rts

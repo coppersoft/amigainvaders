@@ -161,9 +161,34 @@ START:
 
     bsr.w   SwitchBuffers
 
+    move.l  #0,d0
+.fadein_pres:
+    lea     PaletteRaw,a0
+    lea     Palette+2,a1
+    moveq   #32-1,d1
+    addi.b  #1,d0
+    bsr.w   Fade
+    bsr.w   wframe
+    bsr.w   wframe
+    cmpi.b  #16,d0
+    bne.s   .fadein_pres
+    
 .pr_loop:
     btst    #7,$bfe001
     bne.s   .pr_loop
+
+	moveq	#16,d0
+.fadeout_pres:
+	lea	    PaletteRaw,a0
+	lea	    Palette+2,a1
+	moveq	#32-1,d1
+	subi.b	#1,d0
+	bsr.w	Fade
+    bsr.w   wframe
+    bsr.w   wframe
+	tst.b	d0
+	bne.s	.fadeout_pres
+
 
 ; FINE PRESENTAZIONE INIZIALE
 
@@ -287,6 +312,22 @@ InitLevel:
     move.l  #0,d0
 
 mainloop:
+
+; Fade in ingame
+    cmpi.w  #16,FadeInFrame
+    beq.s   .nofadein
+
+    addi.w  #1,FadeInFrame
+    move.w  FadeInFrame,d0
+    lea     PaletteRaw,a0
+    lea     Palette+2,a1
+    moveq   #32-1,d1
+    
+    bsr.w   Fade
+
+.nofadein:
+
+
 ; Gestione mostri
 
     bsr.w   UpdateMonstersPositions
@@ -1282,6 +1323,7 @@ Copper:
 
 
 ; Palette
+Palette:
 	dc.w	$0180,$0001,$0182,$0035,$0184,$0046,$0186,$0467
 	dc.w	$0188,$0068,$018a,$0578,$018c,$018a,$018e,$01ac
 	dc.w	$0190,$02df,$0192,$068a,$0194,$06ac,$0196,$05ef
@@ -1339,6 +1381,20 @@ Bplpointers:
     dc.w    $ffff,$fffe
 
     EVEN
+
+
+PaletteRaw:
+    dc.w	$0001,$0035,$0046,$0467
+	dc.w	$0068,$0578,$018a,$01ac
+	dc.w	$02df,$068a,$06ac,$05ef
+	dc.w	$08ab,$09bc,$0ade,$0dff
+	dc.w	$0d00,$0800,$0e80,$0ff0
+	dc.w	$0990,$0444,$0555,$0666
+	dc.w	$0777,$0070,$0090,$00d0
+	dc.w	$0333,$0777,$0bbb,$0fff
+
+FadeInFrame:
+    dc.w    0
 
 Bitplanes1:
     dcb.b   (44*256)*5,0
