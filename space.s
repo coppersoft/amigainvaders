@@ -1762,13 +1762,6 @@ ShipBulletSprite:
 	dc.w	$6000,$0000
 	dc.w	$6000,$0000
 
-;	dc.w	$0180,$0180
-;	dc.w	$03c0,$03c0
-;	dc.w	$0240,$03c0
-;	dc.w	$0000,$03c0
-;	dc.w	$0000,$0180
-;	dc.w	$0180,$0000
-;	dc.w	$0180,$0000
 	dc.w 0,0
 
 EnemyBulletSprite1:
