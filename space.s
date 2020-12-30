@@ -1218,7 +1218,7 @@ UpdateMegaUfo:
     bne.s   .exit
     move.w  #1,MegaUfoMoving            ; Lo setto
 .ismoving:
-    addq.w  #1,MegaUfoXposition
+    addq.w  #2,MegaUfoXposition
 
     cmpi.w  #320,MegaUfoXposition       ; E' arrivato al margine destro?
     bne.s   .update                     ; Se no non resetta
