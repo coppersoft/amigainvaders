@@ -222,7 +222,11 @@ InitLevel:
 
     move.w  #0,ShipStatus
     move.w  #0,MegaUfoTimer
+    move.w  #0,MegaUfoMoving
+    move.w  #-32,MegaUfoXposition
     
+    bsr.w   PointMegaUfo
+
 ; Stabilisco il livello di difficoltà
 
     cmpi.w  #1,GameLevel
