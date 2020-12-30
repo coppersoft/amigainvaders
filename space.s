@@ -144,6 +144,29 @@ START:
 
     move.l  #Copper,$dff080     ; http://amiga-dev.wikidot.com/hardware:cop1lch  (Copper pointer register) E' un long word move perché il registro è una long word
 
+; PRESENTAZIONE INIZIALE
+
+    lea     Presentazione,a0
+    move.l  draw_buffer,a1
+    move.w  #200,d0
+    move.w  #5,d1
+    bsr.w   SimpleBlit
+
+    lea     Presentazione+(200*44*5),a0
+    move.l  draw_buffer,a1
+    add.l   #200*44*5,a1
+    move.w  #55,d0
+    move.w  #5,d1
+    bsr.w   SimpleBlit
+
+    bsr.w   SwitchBuffers
+
+.pr_loop:
+    btst    #7,$bfe001
+    bne.s   .pr_loop
+
+; FINE PRESENTAZIONE INIZIALE
+
 RestartGame:
     move.w  #3,Lifes
     move.w  #1,GameLevel
@@ -1360,6 +1383,9 @@ ShipBulletMask:
     incbin "gfx/ShipBulletMask.raw"
 
 ; Messaggi
+
+Presentazione:
+    incbin "gfx/Presentazione.raw"
 
 LivelloCompletato:
     incbin "gfx/LivComp.raw"
